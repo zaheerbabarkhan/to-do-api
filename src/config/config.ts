@@ -1,4 +1,4 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 
 
 dotenv.config();
@@ -7,4 +7,4 @@ dotenv.config();
 export default {
     PORT: process.env.PORT,
     HOST: process.env.HOST
-}
+};
