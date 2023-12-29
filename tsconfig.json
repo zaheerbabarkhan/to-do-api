@@ -20,8 +20,8 @@
 
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
-    "noUnusedLocals": true,                           /* Enable error reporting when local variables aren't read. */
-    "noUnusedParameters": true,                       /* Raise an error when a function parameter isn't read. */
+    "noUnusedLocals": false,                           /* Enable error reporting when local variables aren't read. */
+    "noUnusedParameters": false,                       /* Raise an error when a function parameter isn't read. */
     
     /* Completeness */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */

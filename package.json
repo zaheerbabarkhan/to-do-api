@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "lint-fix": "eslint . --fix"
+    "lint-fix": "eslint . --fix",
+    "start:dev": "nodemon",
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node build/server.js"
     },
   "keywords": [],
   "author": "",
