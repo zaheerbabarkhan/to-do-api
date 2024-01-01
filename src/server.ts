@@ -4,7 +4,12 @@ import config from "./config/config";
 const app = express();
 
 app.get("/status-check", (req, res) => {
-    res.send("Health check successfull");
+    const data = {
+        uptimeInSeconds: Math.floor(process.uptime()),
+        message: "Ok",
+        date: new Date()
+    };
+    res.status(200).send(data);
 });
 
 
