@@ -1,5 +1,6 @@
 import { Dialect, Options, Sequelize } from "sequelize";
 import config from "../config/config";
+import { User } from "./models";
 
 
 let sequelize: Sequelize;
@@ -20,10 +21,17 @@ const connectDB = () => {
         sync: {
             alter: dbConfig.DB_ALTER,
             force: dbConfig.DB_SYNC
-        }
+        },
+        logging: false,
         
     };
     sequelize = new Sequelize(sequelizeOptions);
+    return sequelize;
+};
+
+
+export const initModels = (sequelize: Sequelize) => {
+    User.initModel(sequelize);
 };
 
 export default connectDB;

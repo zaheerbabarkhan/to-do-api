@@ -1,20 +1,23 @@
 import express from "express";
 import config from "./config/config";
-import sequelize from "./database/init";
+import sequelize, {initModels} from "./database/init";
 import { Sequelize } from "sequelize";
+
 
 const app = express();
 
-let db: Sequelize | undefined;
+let db: Sequelize;
 (async () =>  {
+
     try {
         db = sequelize();
-        await db?.authenticate();
-
-
+        await db.authenticate();
+        initModels(db);
+        config.NODE_ENV === "development" && await db.sync();
     } catch (error) {
         console.log("DB Connection erorr:", error);
     }
+
 })();
 
 app.get("/status-check", (req, res) => {
