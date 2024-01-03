@@ -36,7 +36,7 @@ export class User extends Model {
             },
             firstName: {
                 type: DataTypes.STRING(20),
-                field: "fitrst_name",
+                field: "first_name",
                 allowNull: false,
             },
             lastName: {
