@@ -2,10 +2,16 @@ import express from "express";
 import config from "./config/config";
 import sequelize from "./database/init";
 import { Sequelize } from "sequelize";
+import YAML from "yamljs";
+import { connector } from "swagger-routes-express";
+import * as api from "./controllers";
+import path from "path";
 
 const app = express();
 
-let db: Sequelize | undefined;
+let db: Sequelize;
+
+// connecting and initiating and syncing database
 (async () =>  {
     try {
         db = sequelize();
@@ -17,18 +23,15 @@ let db: Sequelize | undefined;
     }
 })();
 
-app.get("/status-check", (req, res) => {
-    if (!db) {
-        res.status(500).send("Internal Server Error");
-        return;
-    }
-    const data = {
-        uptimeInSeconds: Math.floor(process.uptime()),
-        message: "Ok",
-        date: new Date()
-    };
-    res.status(200).send(data);
-});
+// attaching routes to swagger-router
+(()  => {
+    const apiDefinition = YAML.load(path.join(__dirname, "api.yml"));
+    const connect = connector(api, apiDefinition);
+    connect(app);
+})();
+
+
+
 
 
 app.listen(config.PORT, () => {

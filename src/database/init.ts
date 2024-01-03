@@ -24,6 +24,7 @@ const connectDB = () => {
         
     };
     sequelize = new Sequelize(sequelizeOptions);
+    return sequelize;
 };
 
 export default connectDB;

@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: To-Do OpenAPI 3.0
+  description: This is the Open API document5ation for the tod-do app which will let the user to signup and then add the task to their todo task list, user can also delete the task or mark the task as completed.
+  version: 1.0.0
+  contact: 
+    email: email123@gmail.com
+servers:
+  - url: http://localhots:3000
+tags:
+  - name: User
+    description: This contain all the user related APIs like signup and login or social login
+  - name: Health-check
+    description: This contains the route to check the health of the API wether API isw up or down
+paths:
+  /status-check:
+    get:
+      tags:
+        - Health-check
+      summary: Get Server Information
+      description: Returns information about the server
+      operationId: healthCheck
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerInfo'
+
+components:
+  schemas:
+    ServerInfo:
+      type: object
+      properties:
+        uptimeInSeconds:
+          type: integer
+        message:
+          type: string
+        date:
+          type: string
