@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import config from "./config/config";
 import sequelize, {initModels} from "./database/init";
 import { Sequelize } from "sequelize";
@@ -8,9 +8,27 @@ import * as api from "./controllers";
 import path from "path";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import * as OpenApiValidator from "express-openapi-validator";
+
 
 const app = express();
+app.use(express.json());
 
+const apiDefinitionFilePath = path.join(__dirname, "api.yml");
+
+// attaching swagger validator middleware
+(() => {
+    const validatorOptions = {
+        apiSpec: apiDefinitionFilePath,
+        validateRequests: true,
+    };
+    app.use(OpenApiValidator.middleware(validatorOptions));
+})();
+
+// attaching error middleware
+
+
+// making Db connection
 let db: Sequelize;
 (async () =>  {
 
@@ -30,7 +48,7 @@ let db: Sequelize;
 
 // attaching routes to swagger-router
 (()  => {
-    const apiDefinition = YAML.load(path.join(__dirname, "api.yml"));
+    const apiDefinition = YAML.load(apiDefinitionFilePath);
     const connect = connector(api, apiDefinition);
     connect(app);
     const specs = swaggerJsDoc({
@@ -40,6 +58,22 @@ let db: Sequelize;
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 })();
+
+
+app.use((
+    error: Error & { status?: number; errors: unknown[]},
+    _req: express.Request,
+    res: express.Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _next: NextFunction) => {
+    const status = error.status ?? 500;
+    res.status(status).json({
+        message: error.message,
+        errors: error.errors,
+    });
+    return;
+});
+
 
 
 app.listen(config.PORT, () => {
