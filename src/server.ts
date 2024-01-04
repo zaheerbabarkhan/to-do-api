@@ -6,6 +6,8 @@ import YAML from "yamljs";
 import { connector} from "swagger-routes-express";
 import * as api from "./controllers";
 import path from "path";
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
 const app = express();
 
@@ -16,7 +18,10 @@ let db: Sequelize;
         db = sequelize();
         await db.authenticate();
         initModels(db);
-        config.NODE_ENV === "development" && await db.sync();
+        config.NODE_ENV === "development" && await db.sync({
+            force: config.DB.DB_SYNC,
+            alter: config.DB.DB_ALTER
+        });
     } catch (error) {
         console.log("DB Connection erorr:", error);
     }
@@ -28,6 +33,12 @@ let db: Sequelize;
     const apiDefinition = YAML.load(path.join(__dirname, "api.yml"));
     const connect = connector(api, apiDefinition);
     connect(app);
+    const specs = swaggerJsDoc({
+        swaggerDefinition: apiDefinition,
+        apis: ["./controllers/*.ts"]
+    });
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
 })();
 
 
