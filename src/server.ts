@@ -1,4 +1,4 @@
-import express, { NextFunction } from "express";
+import express from "express";
 import config from "./config/config";
 import sequelize, {initModels} from "./database/init";
 import { Sequelize } from "sequelize";
@@ -9,6 +9,7 @@ import path from "path";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import * as OpenApiValidator from "express-openapi-validator";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 
 const app = express();
@@ -60,19 +61,7 @@ let db: Sequelize;
 })();
 
 
-app.use((
-    error: Error & { status?: number; errors: unknown[]},
-    _req: express.Request,
-    res: express.Response,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _next: NextFunction) => {
-    const status = error.status ?? 500;
-    res.status(status).json({
-        message: error.message,
-        errors: error.errors,
-    });
-    return;
-});
+app.use(errorMiddleware);
 
 
 
