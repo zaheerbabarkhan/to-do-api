@@ -19,4 +19,8 @@ export default {
         DB_HOST: env.DB_HOST,
         DB_DIALECT: env.DB_DIALECT
     },
+
+    BCRYPT: {
+        SALT_ROUNDS: 10
+    }
 };
