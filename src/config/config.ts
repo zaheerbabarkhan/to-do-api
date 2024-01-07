@@ -21,6 +21,6 @@ export default {
     },
 
     BCRYPT: {
-        SALT_ROUNDS: 10
+        SALT_ROUNDS: Number(env.SALT_ROUNDS)
     }
 };
