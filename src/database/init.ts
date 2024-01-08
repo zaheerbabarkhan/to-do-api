@@ -22,7 +22,7 @@ const connectDB = () => {
             alter: dbConfig.DB_ALTER,
             force: dbConfig.DB_SYNC
         },
-        logging: false,
+        logging: true,
         
     };
     sequelize = new Sequelize(sequelizeOptions);
