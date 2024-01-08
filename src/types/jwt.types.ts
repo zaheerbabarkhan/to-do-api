@@ -1,3 +1,3 @@
 export interface Payload {
-    userId: string
+    userId: number
 }

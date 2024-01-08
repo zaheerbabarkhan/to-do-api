@@ -24,7 +24,6 @@ export default {
         SALT_ROUNDS: 10
     },
     SMTP: {
-        SMTP_HOST: env.SMTP_HOST,
         SMTP_EMAIL: env. SMTP_EMAIL,
         SMTP_PASSWORD: env.SMTP_PASSWORD
     },

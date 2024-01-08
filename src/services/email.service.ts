@@ -2,17 +2,15 @@ import nodemailer from "nodemailer";
 import config from "../config/config";
 
 const transporter = nodemailer.createTransport({
-    host: config.SMTP.SMTP_HOST,
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: "gmail",
     auth: {
         user: config.SMTP.SMTP_EMAIL, 
-        pass: config.SMTP.SMTP_PASSWORD, // generated ethereal password
-    },
+        pass: config.SMTP.SMTP_PASSWORD,
+    }
 });
 
 
-export const sendConfirmationEmail = async (to: string, token: string) => {
+const confirmationEmail = async (to: string, token: string) => {
     const confirmationLink = config.NODE_ENV === "development" ? `http://${config.HOST}:${config.PORT}/user/confirm-email?token=${token}` : `${config.HOST}/user/confirm-email?token=${token}`;
 
     const emailContent = `
@@ -27,4 +25,8 @@ export const sendConfirmationEmail = async (to: string, token: string) => {
         text: `please click on the following link to confirm you email ${confirmationLink}`, // plain text body 
         html: emailContent, // HTML version of the email
     });
+};
+
+export default {
+    confirmationEmail,
 };
