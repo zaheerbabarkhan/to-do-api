@@ -33,3 +33,19 @@ export const confirmUserEmail = async (req: Request, res: Response, next: NextFu
     }
     
 };
+
+
+export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
+    
+    const {email, password} = req.body;
+    try {
+        const responseBody = await UserService.userLogin({
+            email,
+            password,
+        });
+        res.status(200).json(responseBody);
+    } catch (error) {
+        next(error);
+    }
+    
+};

@@ -1,6 +1,17 @@
-export interface CreateUser {
+export interface CreateUserReq {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
+}
+
+
+export interface UserLoginReq {
+    email: string;
+    password: string;
+}
+
+export interface UserLoginRes {
+    message: string;
+    token: string;
 }
