@@ -27,5 +27,9 @@ export default {
         SMTP_HOST: env.SMTP_HOST,
         SMTP_EMAIL: env. SMTP_EMAIL,
         SMTP_PASSWORD: env.SMTP_PASSWORD
+    },
+    JWT: {
+        SECRET_KEY: String(env.SECRET_KEY),
+        EXPIRY: String(env.EXPIRY)
     }
 };
