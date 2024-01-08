@@ -10,3 +10,26 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         next(error);
     }        
 };
+
+
+
+export const confirmUserEmail = async (req: Request, res: Response, next: NextFunction) => {
+    
+    const token = req.query.token;
+
+    if (!token) {
+        res.status(401).json({
+            message: "Unauthorized"
+        });
+    }
+    
+    try {
+        await UserService.confirmUserEmail(String(token));
+        res.status(200).json({
+            message: "Email confirmed successfully."
+        });
+    } catch (error) {
+        next(error);
+    }
+    
+};
