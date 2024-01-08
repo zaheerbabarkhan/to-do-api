@@ -21,6 +21,14 @@ export default {
     },
 
     BCRYPT: {
-        SALT_ROUNDS: Number(env.SALT_ROUNDS)
+        SALT_ROUNDS: 10
+    },
+    SMTP: {
+        SMTP_EMAIL: env. SMTP_EMAIL,
+        SMTP_PASSWORD: env.SMTP_PASSWORD
+    },
+    JWT: {
+        SECRET_KEY: String(env.SECRET_KEY),
+        EXPIRY: String(env.EXPIRY)
     }
 };

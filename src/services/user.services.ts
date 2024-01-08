@@ -4,7 +4,8 @@ import { CreateUser } from "../types/user.types";
 import bcrypt from "bcrypt";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
-
+import JWT from "../utils/jwt.util";
+import EmailService from "../services/email.service";
 
 const  createUser = async (userData: CreateUser): Promise<User>  => {
     const {firstName, lastName, email, password} = userData;
@@ -27,8 +28,17 @@ const  createUser = async (userData: CreateUser): Promise<User>  => {
         email,
         password: passwordHash,
     });
+
+    await sendConfirmationEmail(newUser);
     
     return newUser;
+};
+
+const sendConfirmationEmail = async (user: User) => {
+    const emailConfirmationToken = JWT.issueToken({
+        userId: user.id,
+    });
+    await EmailService.confirmationEmail(user.email, emailConfirmationToken);
 };
 
 
