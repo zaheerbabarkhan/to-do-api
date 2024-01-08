@@ -6,6 +6,9 @@ import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 import JWT from "../utils/jwt.util";
 import EmailService from "../services/email.service";
+import status from "../constants/status";
+import { Payload } from "../types/jwt.types";
+import { Op } from "sequelize";
 
 const  createUser = async (userData: CreateUser): Promise<User>  => {
     const {firstName, lastName, email, password} = userData;
@@ -34,6 +37,31 @@ const  createUser = async (userData: CreateUser): Promise<User>  => {
     return newUser;
 };
 
+
+const confirmUserEmail = async (token: string) => {
+    const payload = await JWT.verify(String(token)) as Payload;
+    console.log(payload);
+    const user = await User.findOne({
+        where: {
+            id: payload.userId,
+            statusId: {
+                [Op.ne]: status.DELETED,
+            },
+        }
+    });
+
+    if (!user) {
+        throw new HttpError(httpStatus.NOT_FOUND, "User not found");
+    }
+
+    if(user.statusId === status.ACTIVE) {
+        throw new HttpError(httpStatus.BAD_REQUEST, "Email confirmed already");
+    }
+    user.statusId = status.ACTIVE;
+    await user.save();
+};
+
+
 const sendConfirmationEmail = async (user: User) => {
     const emailConfirmationToken = JWT.issueToken({
         userId: user.id,
@@ -44,4 +72,5 @@ const sendConfirmationEmail = async (user: User) => {
 
 export default {
     createUser,
+    confirmUserEmail
 };
