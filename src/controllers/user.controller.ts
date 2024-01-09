@@ -21,6 +21,7 @@ export const confirmUserEmail = async (req: Request, res: Response, next: NextFu
         res.status(401).json({
             message: "Unauthorized"
         });
+        return;
     }
     
     try {

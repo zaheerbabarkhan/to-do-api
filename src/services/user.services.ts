@@ -39,8 +39,12 @@ const  createUser = async (userData: CreateUserReq): Promise<User>  => {
 
 
 const confirmUserEmail = async (token: string) => {
-    const payload = await JWT.verify(String(token)) as Payload;
-    console.log(payload);
+    let payload: Payload;
+    try {
+        payload = await JWT.verify(String(token)) as Payload;
+    } catch (error) {
+        throw new HttpError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
     const user = await User.findOne({
         where: {
             id: payload.userId,
