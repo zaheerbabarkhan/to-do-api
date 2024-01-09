@@ -6,3 +6,12 @@ export interface CreateToDoReq {
     dueDate: Date;
     user: User;
 }
+
+
+export interface UpdateToDoReq {
+    title?: string;
+    description?: string;
+    dueDate?: Date
+    markCompleted?: boolean;
+    user: User
+}
