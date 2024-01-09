@@ -5,13 +5,14 @@ export interface ToDoAttributes {
     id: number;
     title: string;
     description: string;
-    dueDatetime: Date;
+    dueDate: Date;
     statusId: number;
+    completedAt: Date;
     userId: number;
 
-    createdAt: Date
-    updatedAt: Date
-    deletedAt: Date
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date;
 }
 
 
@@ -22,8 +23,9 @@ export class ToDo extends Model {
     public id!: number;
     public title!: string;
     public description!: string;
-    public dueDatetime!: Date;
+    public dueDate!: Date;
     public statusId!: number;
+    public completedAt!: Date;
     public userId!: number;
 
     public readonly createdAt!: Date;
@@ -44,13 +46,13 @@ export class ToDo extends Model {
                 allowNull: false,
             },
             description: {
-                type: DataTypes.TEXT("medium"), // Adjust the length as needed
+                type: DataTypes.STRING(1000), // Adjust the length as needed
                 field: "description",
                 allowNull: true,
             },
-            dueDatetime: {
+            dueDate: {
                 type: DataTypes.DATE,
-                field: "due_datetime",
+                field: "due_date",
                 allowNull: false,
             },
             statusId: {
@@ -58,6 +60,11 @@ export class ToDo extends Model {
                 field: "status_id",
                 allowNull: false,
                 defaultValue: status.PENDING,
+            },
+            completedAt: {
+                type: DataTypes.DATE,
+                field: "completed_at",
+                allowNull: true,
             },
             userId: {
                 type: DataTypes.INTEGER.UNSIGNED,

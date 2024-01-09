@@ -12,6 +12,8 @@ tags:
     description: This contain all the user related APIs like signup and login or social login
   - name: Health-check
     description: This contains the route to check the health of the API wether API isw up or down
+  - name: ToDo
+    description: Operations related to To-Dos
 paths:
   /status-check:
     get:
@@ -27,7 +29,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerInfo'
-  /user:
+  /users:
     post:
       tags:
         - User
@@ -62,7 +64,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/BadRequestError"
-  /user/confirm-email:
+  /users/confirm-email:
     put:
       tags:
         - User
@@ -85,7 +87,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/BadRequestError"
-  /user/login:
+  /users/login:
     post:
       summary: User Login
       description: Log in a user with email and password
@@ -116,6 +118,28 @@ paths:
                 $ref: '#/components/schemas/UnauthorizedResponse'
               example:
                 message: Invalid credentials
+  /todos:
+    post:
+      summary: Create a new To-Do
+      tags:
+        - ToDo
+      security: 
+        - JWTSecurity: []
+      operationId: createToDo
+      requestBody:
+        description: To-Do data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToDoCreateRequest'
+      responses:
+        '201':
+          description: To-Do created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToDoResponse'
 components:
   schemas:
     ServerInfo:
@@ -192,7 +216,39 @@ components:
         token:
           type: string
           description: JWT token
-
+    ToDoCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: string  # Assuming dueDate is a string for simplicity
+      required:
+        - title
+        - dueDate
+    ToDoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: string  # Assuming dueDate is a string for simplicity
+          format: date
+        createdAt:
+          type: string  # Assuming createdAt is a string for simplicity
+          format: date
+        updatedAt:
+          type: string  # Assuming updatedAt is a string for simplicity
+          format: date
+        completedAt:
+          type: string
+          format: date
     UnauthorizedResponse:
       type: object
       properties:
