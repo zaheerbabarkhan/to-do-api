@@ -1,6 +1,6 @@
 import { Dialect, Options, Sequelize } from "sequelize";
 import config from "../config/config";
-import { User } from "./models";
+import { ToDo, User } from "./models";
 
 
 let sequelize: Sequelize;
@@ -32,6 +32,10 @@ const connectDB = () => {
 
 export const initModels = (sequelize: Sequelize) => {
     User.initModel(sequelize);
+    ToDo.initModel(sequelize);
+
+    User.associcateModel();
+    ToDo.associateModel();
 };
 
 export default connectDB;

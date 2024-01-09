@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 
 
 const confirmationEmail = async (to: string, token: string) => {
-    const confirmationLink = config.NODE_ENV === "development" ? `http://${config.HOST}:${config.PORT}/user/confirm-email?token=${token}` : `${config.HOST}/user/confirm-email?token=${token}`;
+    const confirmationLink = config.NODE_ENV === "development" ? `http://${config.HOST}:${config.PORT}/users/confirm-email?token=${token}` : `${config.HOST}/users/confirm-email?token=${token}`;
 
     const emailContent = `
     <p>Please click on the following link to confirm your email:</p>

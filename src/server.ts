@@ -10,6 +10,7 @@ import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import * as OpenApiValidator from "express-openapi-validator";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import authMiddleware from "./middlewares/auth.middleware";
 
 
 const app = express();
@@ -50,7 +51,11 @@ let db: Sequelize;
 // attaching routes to swagger-router
 (()  => {
     const apiDefinition = YAML.load(apiDefinitionFilePath);
-    const connect = connector(api, apiDefinition);
+    const connect = connector(api, apiDefinition, {
+        security: {
+            JWTSecurity: authMiddleware,
+        }
+    });
     connect(app);
     const specs = swaggerJsDoc({
         swaggerDefinition: apiDefinition,
