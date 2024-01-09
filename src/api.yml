@@ -173,6 +173,33 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/NotFoundError'
+      get:
+        summary: Get a specific To-Do by ID
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getToDoById
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: integer
+            description: The ID of the To-Do to retrieve
+        responses:
+          '200':
+            description: To-Do retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ToDoResponse'
+          '404':
+            description: Not Found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotFoundError'
 
   components:
     schemas:

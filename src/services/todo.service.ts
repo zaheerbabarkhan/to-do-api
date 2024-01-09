@@ -52,7 +52,23 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
     return todo;   
 };
 
+const getToDoById = async (id: number): Promise<ToDoOutput> => {
+    const toDo = await ToDo.findOne({
+        where: {
+            statusId: {
+                [Op.ne]: status.DELETED,
+            },
+            id,
+        },
+    });
+    if (!toDo) {
+        throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
+    }
+    return toDo;
+};
+
 export default {
     createToDo,
     updateToDo,
+    getToDoById,
 };

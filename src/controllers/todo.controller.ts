@@ -28,3 +28,13 @@ export const updateToDo = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
+
+export const getToDoById = async (req: Request, res: Response, next: NextFunction) => { 
+    try {
+        const id = Number(req.params.id);
+        const todo = await TodoService.getToDoById(id);
+        res.status(200).json(todo);
+    } catch (error) {
+        next(error);
+    }
+};
