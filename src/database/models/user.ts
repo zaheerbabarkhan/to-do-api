@@ -23,6 +23,7 @@ export class User extends Model {
     public lastName!: string;
     public email!: string;
     public password!: string;
+    public statusId!: number;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

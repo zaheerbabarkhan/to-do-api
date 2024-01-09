@@ -7,7 +7,11 @@ const issueToken = (payload: Payload): string => {
     return token;
 };
 
+const  verify = async (token: string) => {
+    return jwt.verify(token, config.JWT.SECRET_KEY);
+};
 
 export default {
     issueToken,
+    verify
 };
