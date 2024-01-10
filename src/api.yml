@@ -156,6 +156,21 @@
                   type: array
                   items:
                     $ref: '#/components/schemas/ToDoResponse'
+    /todos/count:
+      get:
+        summary: Get counts of tasks
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getToDoCounts
+        responses:
+          '200':
+            description: To-Do counts retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ToDoCountsResponse'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -239,7 +254,7 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/NotFoundError'
-
+  
   components:
     schemas:
       ServerInfo:
@@ -343,7 +358,18 @@
             type: boolean
         minProperties: 1
         maxProperties: 3
-
+      ToDoCountsResponse:
+        type: object
+        properties:
+          totalCount:
+            type: integer
+            description: Total count of all tasks
+          totalCompleted:
+            type: integer
+            description: Count of tasks with statusId 'completed'
+          totalPending:
+            type: integer
+            description: Count of tasks with statusId 'pending'
       ToDoResponse:
         type: object
         properties:

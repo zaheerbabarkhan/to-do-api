@@ -1,7 +1,7 @@
-import { Op, WhereOptions } from "sequelize";
+import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
-import { ToDo, ToDoOutput } from "../database/models";
-import { CreateToDoReq, UpdateToDoReq } from "../types/todo.types";
+import { ToDo, ToDoOutput, UserOutput } from "../database/models";
+import { CreateToDoReq, ToDOCountsRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 
@@ -92,10 +92,43 @@ const deleteToDo = async (id: number) => {
     await toDo.save();
 };
 
+const getToDoCounts = async (user: UserOutput): Promise<ToDOCountsRes> => {
+    const results = await ToDo.findAll({
+        where: {
+            userId: user.id,
+        },
+        attributes: [
+            [
+                Sequelize.fn(
+                    "SUM",
+                    Sequelize.literal(`CASE WHEN status_id = ${status.COMPLETED} THEN 1 ELSE 0 END`)
+                ),
+                "totalCompleted"
+            ],
+            [
+                Sequelize.fn(
+                    "SUM",
+                    Sequelize.literal(`CASE WHEN status_id = ${status.PENDING} THEN 1 ELSE 0 END`)
+                ),
+                "totalPending"
+            ]
+        ],
+    });
+    const counts = {
+        totalCompleted: Number(results[0].getDataValue("totalCompleted")),
+        totalPending: Number(results[0].getDataValue("totalPending")),
+    };
+    return {
+        ...counts,
+        totalCount: counts.totalCompleted + counts.totalPending
+    };
+};
+
 export default {
     createToDo,
     updateToDo,
     getToDoById,
     getAllToDos,
     deleteToDo,
+    getToDoCounts,
 };

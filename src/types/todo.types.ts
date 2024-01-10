@@ -15,3 +15,9 @@ export interface UpdateToDoReq {
     markCompleted?: boolean;
     user: User
 }
+
+export interface ToDOCountsRes {
+    totalCompleted: number;
+    totalPending: number;
+    totalCount: number;
+}

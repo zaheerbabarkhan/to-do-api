@@ -67,3 +67,12 @@ export const deleteToDo = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
+
+export const getToDoCounts = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getToDoCounts(res.locals.user as User);
+        res.status(200).json(totalCounts);
+    } catch (error) {
+        next(error);
+    }
+};
