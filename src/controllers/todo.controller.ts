@@ -76,3 +76,13 @@ export const getToDoCounts = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 };
+
+
+export const getPerDayCount = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getPerDayCount(res.locals.user as User);
+        res.status(200).json(totalCounts);
+    } catch (error) {
+        next(error);
+    }
+};

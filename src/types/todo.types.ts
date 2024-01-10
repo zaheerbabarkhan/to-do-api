@@ -21,3 +21,9 @@ export interface ToDOCountsRes {
     totalPending: number;
     totalCount: number;
 }
+
+
+export interface ToDoPerDayCountRes {
+    dayOfWeek: number;
+    countPerDay: number
+}

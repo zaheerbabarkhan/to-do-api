@@ -1,7 +1,7 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
 import { ToDo, ToDoOutput, UserOutput } from "../database/models";
-import { CreateToDoReq, ToDOCountsRes, UpdateToDoReq } from "../types/todo.types";
+import { CreateToDoReq, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 
@@ -124,6 +124,24 @@ const getToDoCounts = async (user: UserOutput): Promise<ToDOCountsRes> => {
     };
 };
 
+const getPerDayCount = async (user: UserOutput) => {
+
+    const result = await ToDo.findAll({
+        where: {
+            userId: user.id,
+        },
+        attributes: [
+            [
+                Sequelize.fn("EXTRACT", Sequelize.literal("'dow' FROM created_at")), "dayOfWeek",
+            ],
+            [Sequelize.fn("COUNT", Sequelize.col("*")), "countPerDay"],
+        ],
+        group: [Sequelize.fn("EXTRACT", Sequelize.literal("'dow' FROM created_at")), "dayOfWeek"],
+        order: [Sequelize.fn("EXTRACT", Sequelize.literal("'dow' FROM created_at"))], // Use the alias directly in the order
+    }) as unknown;
+
+    return result as ToDoPerDayCountRes[];
+};
 export default {
     createToDo,
     updateToDo,
@@ -131,4 +149,5 @@ export default {
     getAllToDos,
     deleteToDo,
     getToDoCounts,
+    getPerDayCount,
 };
