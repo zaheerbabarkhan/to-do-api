@@ -142,6 +142,22 @@ const getPerDayCount = async (user: UserOutput) => {
 
     return result as ToDoPerDayCountRes[];
 };
+
+const getOverdueTodoCount = async (user: UserOutput) => {
+    const currentDate = new Date();
+
+    const count = await ToDo.count({
+        where: {
+            statusId: status.PENDING,
+            dueDate: {
+                [Op.lt]: currentDate, // Less than current date
+            },
+            userId: user.id,
+        },
+    });
+    return count;
+};
+
 export default {
     createToDo,
     updateToDo,
@@ -150,4 +166,5 @@ export default {
     deleteToDo,
     getToDoCounts,
     getPerDayCount,
+    getOverdueTodoCount,
 };

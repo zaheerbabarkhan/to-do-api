@@ -86,3 +86,14 @@ export const getPerDayCount = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 };
+
+export const getOverdueTodoCount = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getOverdueTodoCount(res.locals.user as User);
+        res.status(200).json({
+            overdueTodoCount: totalCounts,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -186,7 +186,21 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/PerDayCountResponse'
-  
+    /todos/overdue-count:
+      get:
+        summary: Get count of overdue todos
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getOverdueTodoCount
+        responses:
+          '200':
+            description: Count of overdue todos retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OverdueTodoCountResponse'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -417,7 +431,12 @@
           completedAt:
             type: string
             format: date
-
+      OverdueTodoCountResponse:
+        type: object
+        properties:
+          count:
+            type: integer
+            description: Count of overdue todos
       UnauthorizedResponse:
         type: object
         properties:
