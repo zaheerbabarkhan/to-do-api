@@ -140,6 +140,22 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/ToDoResponse'
+      get:
+        summary: Get all To-Dos
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getAllToDos
+        responses:
+          '200':
+            description: To-Dos retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ToDoResponse'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -194,6 +210,29 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/ToDoResponse'
+          '404':
+            description: Not Found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotFoundError'
+      delete:
+        summary: Delete a specific To-Do by ID
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: deleteToDo
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: integer
+            description: The ID of the To-Do to delete
+        responses:
+          '204':
+            description: To-Do deleted successfully
           '404':
             description: Not Found
             content:

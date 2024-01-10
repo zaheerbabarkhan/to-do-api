@@ -1,9 +1,10 @@
-import { Op } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 import status from "../constants/status";
 import { ToDo, ToDoOutput } from "../database/models";
 import { CreateToDoReq, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
+
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
     const { title, dueDate, description, user } = toDoData;
@@ -67,8 +68,34 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
     return toDo;
 };
 
+const getAllToDos = (whereClause: WhereOptions): Promise<ToDoOutput[]> => {
+    const allTodos = ToDo.findAll({
+        where: whereClause,
+    });
+    return allTodos;
+};
+
+const deleteToDo = async (id: number) => {
+    const toDo = await ToDo.findOne({
+        where: {
+            statusId: {
+                [Op.ne]: status.DELETED,
+            },
+            id,
+        },
+    });
+    if (!toDo) {
+        throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
+    }
+    toDo.statusId = status.DELETED;
+    toDo.deletedAt = new Date();
+    await toDo.save();
+};
+
 export default {
     createToDo,
     updateToDo,
     getToDoById,
+    getAllToDos,
+    deleteToDo,
 };

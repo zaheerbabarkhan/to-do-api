@@ -28,9 +28,9 @@ export class ToDo extends Model {
     public completedAt!: Date;
     public userId!: number;
 
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+    public deletedAt!: Date;
 
     public static initModel(sequelize: Sequelize) {
         ToDo.init({
