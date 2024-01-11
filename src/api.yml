@@ -201,6 +201,37 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/OverdueTodoCountResponse'
+    /todos/avgTasksPerDay:
+      get:
+        summary: Get average tasks completed per day
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getAvgCompletedPerDay
+        responses:
+          '200':
+            description: Average tasks completed per day retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AvgCompletedPerDayResponse'
+
+    /todos/maxTasksDay:
+      get:
+        summary: Get the day with the maximum tasks completed
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getDayWithMaxCompletedTasks
+        responses:
+          '200':
+            description: Day with max completed tasks retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DayWithMaxCompletedTasksResponse'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -437,6 +468,21 @@
           count:
             type: integer
             description: Count of overdue todos
+      DayWithMaxCompletedTasksResponse:
+        type: object
+        properties:
+          date:
+            type: string
+            format: date
+          count:
+            type: integer
+            description: Count of tasks completed on the day
+      AvgCompletedPerDayResponse:
+        type: object
+        properties:
+          avg:
+            type: integer
+            description: Count of avg completed tasks per day
       UnauthorizedResponse:
         type: object
         properties:

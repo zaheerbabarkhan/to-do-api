@@ -27,3 +27,9 @@ export interface ToDoPerDayCountRes {
     dayOfWeek: number;
     countPerDay: number
 }
+
+
+export interface DayWithTasksRes {
+    day: Date,
+    countPerDay: number;
+}

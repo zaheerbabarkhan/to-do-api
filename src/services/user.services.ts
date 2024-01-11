@@ -40,7 +40,6 @@ const  createUser = async (userData: CreateUserReq): Promise<User>  => {
 
 const confirmUserEmail = async (token: string) => {
     const payload = await JWT.verify(String(token)) as Payload;
-    console.log(payload);
     const user = await User.findOne({
         where: {
             id: payload.userId,
