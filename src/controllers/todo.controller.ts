@@ -119,3 +119,12 @@ export const getAvgCompletedPerDay = async (req: Request, res: Response, next: N
         next(error);
     } 
 };
+
+export const getSimilars = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await TodoService.getSimilars(res.locals.user as User);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};

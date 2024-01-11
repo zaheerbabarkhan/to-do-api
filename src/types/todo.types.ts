@@ -33,3 +33,8 @@ export interface DayWithTasksRes {
     day: Date,
     countPerDay: number;
 }
+
+export interface SimilarsQueryResult {
+    title: number;
+    ids: string
+}

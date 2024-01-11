@@ -1,7 +1,7 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
 import { ToDo, ToDoOutput, UserOutput } from "../database/models";
-import { CreateToDoReq, DayWithTasksRes, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
+import { CreateToDoReq, DayWithTasksRes, SimilarsQueryResult, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 
@@ -211,6 +211,38 @@ const getDayWithMaxCompletedTasks = async (user: UserOutput) => {
     return result;
 };
 
+
+const getSimilars = async (user: UserOutput) => {
+    const results = await ToDo.findAll({
+        where: {
+            userId: user.id,
+            statusId: {
+                [Op.ne]: status.DELETED,
+            }
+        },
+        attributes: [
+            "title",
+            [Sequelize.fn("STRING_AGG", Sequelize.literal("id::text"), ","), "ids"]
+        ],
+        group: ["title"],
+        having: Sequelize.literal("COUNT(*) > 1"),
+        raw: true
+    }) as unknown as SimilarsQueryResult[];
+    const allSimilarPromises = results.map(result=> {
+        return ToDo.findAll({
+            where: {
+                id: {
+                    [Op.in]: [...result.ids.split(",")]
+                },
+            }
+        });
+    });
+    const allSimilarResults = await Promise.allSettled(allSimilarPromises);
+    const similarTodos = allSimilarResults
+        .filter((result): result is PromiseFulfilledResult<ToDo[]> => result.status === "fulfilled")
+        .map((result) => result.value);
+    return similarTodos;
+};
 export default {
     createToDo,
     updateToDo,
@@ -222,4 +254,5 @@ export default {
     getOverdueTodoCount,
     getDayWithMaxCompletedTasks,
     getAvgCompletedPerDay,
+    getSimilars,
 };
