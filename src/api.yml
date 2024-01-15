@@ -156,6 +156,82 @@
                   type: array
                   items:
                     $ref: '#/components/schemas/ToDoResponse'
+    /todos/count:
+      get:
+        summary: Get counts of tasks
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getToDoCounts
+        responses:
+          '200':
+            description: To-Do counts retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ToDoCountsResponse'
+    /todos/perDayCount:
+      get:
+        summary: Get per-day count of tasks
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getPerDayCount
+        responses:
+          '200':
+            description: Per-day count retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PerDayCountResponse'
+    /todos/overdue-count:
+      get:
+        summary: Get count of overdue todos
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getOverdueTodoCount
+        responses:
+          '200':
+            description: Count of overdue todos retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OverdueTodoCountResponse'
+    /todos/avgTasksPerDay:
+      get:
+        summary: Get average tasks completed per day
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getAvgCompletedPerDay
+        responses:
+          '200':
+            description: Average tasks completed per day retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AvgCompletedPerDayResponse'
+
+    /todos/maxTasksDay:
+      get:
+        summary: Get the day with the maximum tasks completed
+        tags:
+          - ToDo
+        security:
+          - JWTSecurity: []
+        operationId: getDayWithMaxCompletedTasks
+        responses:
+          '200':
+            description: Day with max completed tasks retrieved successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DayWithMaxCompletedTasksResponse'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -239,7 +315,7 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/NotFoundError'
-
+    
   components:
     schemas:
       ServerInfo:
@@ -328,7 +404,17 @@
         required:
           - title
           - dueDate
-      
+      PerDayCountResponse:
+        type: array
+        items:
+          type: object
+          properties:
+            dayOfWeek:
+              type: number
+              description: Numeric representation of the day of the week (0 for Sunday, 1 for Monday, etc.)
+            countPerDay:
+              type: number
+              description: Count of tasks created on the specified day of the week
       ToDoUpdateRequest:
         type: object
         properties:
@@ -343,7 +429,18 @@
             type: boolean
         minProperties: 1
         maxProperties: 3
-
+      ToDoCountsResponse:
+        type: object
+        properties:
+          totalCount:
+            type: integer
+            description: Total count of all tasks
+          totalCompleted:
+            type: integer
+            description: Count of tasks with statusId 'completed'
+          totalPending:
+            type: integer
+            description: Count of tasks with statusId 'pending'
       ToDoResponse:
         type: object
         properties:
@@ -365,7 +462,27 @@
           completedAt:
             type: string
             format: date
-
+      OverdueTodoCountResponse:
+        type: object
+        properties:
+          count:
+            type: integer
+            description: Count of overdue todos
+      DayWithMaxCompletedTasksResponse:
+        type: object
+        properties:
+          date:
+            type: string
+            format: date
+          count:
+            type: integer
+            description: Count of tasks completed on the day
+      AvgCompletedPerDayResponse:
+        type: object
+        properties:
+          avg:
+            type: integer
+            description: Count of avg completed tasks per day
       UnauthorizedResponse:
         type: object
         properties:

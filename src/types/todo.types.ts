@@ -15,3 +15,21 @@ export interface UpdateToDoReq {
     markCompleted?: boolean;
     user: User
 }
+
+export interface ToDOCountsRes {
+    totalCompleted: number;
+    totalPending: number;
+    totalCount: number;
+}
+
+
+export interface ToDoPerDayCountRes {
+    dayOfWeek: number;
+    countPerDay: number
+}
+
+
+export interface DayWithTasksRes {
+    day: Date,
+    countPerDay: number;
+}

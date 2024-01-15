@@ -67,3 +67,55 @@ export const deleteToDo = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
+
+export const getToDoCounts = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getToDoCounts(res.locals.user as User);
+        res.status(200).json(totalCounts);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const getPerDayCount = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getPerDayCount(res.locals.user as User);
+        res.status(200).json(totalCounts);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getOverdueTodoCount = async (req: Request, res: Response, next: NextFunction) => {  
+    try {
+        const totalCounts = await TodoService.getOverdueTodoCount(res.locals.user as User);
+        res.status(200).json({
+            overdueTodoCount: totalCounts,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const results = await TodoService.getDayWithMaxCompletedTasks(res.locals.user as User);
+        res.status(200).json(results[0]);
+    } catch (error) {
+        next(error);
+    } 
+};
+
+
+
+export const getAvgCompletedPerDay = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const avg = await TodoService.getAvgCompletedPerDay(res.locals.user as User);
+        res.status(200).json({
+            avgCompletedPerDay: avg
+        });
+    } catch (error) {
+        next(error);
+    } 
+};
