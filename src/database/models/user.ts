@@ -1,5 +1,6 @@
 import { Model, Optional, DataTypes, Sequelize } from "sequelize";
 import status from "../../constants/status";
+import { ToDo } from "./";
 
 export interface UserAttributes {
     id: number,
@@ -33,7 +34,7 @@ export class User extends Model {
                 type: DataTypes.INTEGER.UNSIGNED,
                 field: "id",
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             firstName: {
                 type: DataTypes.STRING(20),
@@ -65,8 +66,16 @@ export class User extends Model {
         }, {
             timestamps: true,
             sequelize,
+            tableName: "users"
         });
         
+    }
+
+    public static associcateModel() {
+        User.hasMany(ToDo, {
+            foreignKey: "userId",
+            as: "todos"
+        });
     }
 }
 
