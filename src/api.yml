@@ -232,6 +232,22 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/DayWithMaxCompletedTasksResponse'
+    /todos/similar:
+      get:
+        summary: Get similar todos
+        description: Retrieve todos grouped by similar titles.
+        security:
+          - JWTSecurity: []
+        operationId: getSimilars
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SimilarTodosGroup'
     /todos/{id}:
       put:
         summary: Update a specific To-Do by ID
@@ -483,6 +499,16 @@
           avg:
             type: integer
             description: Count of avg completed tasks per day
+      SimilarTodosGroup:
+        type: object
+        properties:
+          title:
+            type: string
+            description: The title of the similar todos group.
+          todos:
+            type: array
+            items:
+              $ref: '#/components/schemas/ToDoResponse'
       UnauthorizedResponse:
         type: object
         properties:

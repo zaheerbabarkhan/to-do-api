@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import TodoService from "../services/todo.service";
-import { ToDoAttributes, User } from "../database/models";
-import { UpdateToDoReq } from "../types/todo.types";
+import { ToDoAttributes } from "../database/models";
 import { Op, WhereOptions } from "sequelize";
 import status from "../constants/status";
 
@@ -9,7 +8,7 @@ export const createToDo = async (req: Request, res: Response, next: NextFunction
     try {
         const newToDo = await TodoService.createToDo({
             ...req.body,
-            user: res.locals.user as User
+            userId: res.locals.user.id
         });
         res.status(201).json(newToDo);
         return;
@@ -20,10 +19,10 @@ export const createToDo = async (req: Request, res: Response, next: NextFunction
 
 export const updateToDo = async (req: Request, res: Response, next: NextFunction) => { 
     try {
-        const reqData: UpdateToDoReq = req.body;
+        
         const updatedToDo = await TodoService.updateToDo({
-            ...reqData,
-            user: res.locals.user
+            ...req.body,
+            userId: res.locals.user.id
         });
         res.status(200).json(updatedToDo);
     } catch (error) {
@@ -70,7 +69,7 @@ export const deleteToDo = async (req: Request, res: Response, next: NextFunction
 
 export const getToDoCounts = async (req: Request, res: Response, next: NextFunction) => {  
     try {
-        const totalCounts = await TodoService.getToDoCounts(res.locals.user as User);
+        const totalCounts = await TodoService.getToDoCounts(res.locals.user.id);
         res.status(200).json(totalCounts);
     } catch (error) {
         next(error);
@@ -80,7 +79,7 @@ export const getToDoCounts = async (req: Request, res: Response, next: NextFunct
 
 export const getPerDayCount = async (req: Request, res: Response, next: NextFunction) => {  
     try {
-        const totalCounts = await TodoService.getPerDayCount(res.locals.user as User);
+        const totalCounts = await TodoService.getPerDayCount(res.locals.user.id);
         res.status(200).json(totalCounts);
     } catch (error) {
         next(error);
@@ -89,7 +88,7 @@ export const getPerDayCount = async (req: Request, res: Response, next: NextFunc
 
 export const getOverdueTodoCount = async (req: Request, res: Response, next: NextFunction) => {  
     try {
-        const totalCounts = await TodoService.getOverdueTodoCount(res.locals.user as User);
+        const totalCounts = await TodoService.getOverdueTodoCount(res.locals.user.id);
         res.status(200).json({
             overdueTodoCount: totalCounts,
         });
@@ -100,7 +99,7 @@ export const getOverdueTodoCount = async (req: Request, res: Response, next: Nex
 
 export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const results = await TodoService.getDayWithMaxCompletedTasks(res.locals.user as User);
+        const results = await TodoService.getDayWithMaxCompletedTasks(res.locals.user.id);
         res.status(200).json(results[0]);
     } catch (error) {
         next(error);
@@ -111,11 +110,20 @@ export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, n
 
 export const getAvgCompletedPerDay = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const avg = await TodoService.getAvgCompletedPerDay(res.locals.user as User);
+        const avg = await TodoService.getAvgCompletedPerDay(res.locals.user.id);
         res.status(200).json({
             avgCompletedPerDay: avg
         });
     } catch (error) {
         next(error);
     } 
+};
+
+export const getSimilars = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await TodoService.getSimilars(res.locals.user.id);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
 };

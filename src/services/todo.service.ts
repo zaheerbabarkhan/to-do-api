@@ -1,31 +1,31 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
-import { ToDo, ToDoOutput, UserOutput } from "../database/models";
-import { CreateToDoReq, DayWithTasksRes, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
+import { ToDo, ToDoOutput } from "../database/models";
+import { CreateToDoReq, DayWithTasksRes, SimilarsQueryResult, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
-    const { title, dueDate, description, user } = toDoData;
+    const { title, dueDate, description, userId } = toDoData;
     const newToDo = await ToDo.create({
         title,
         description,
         dueDate,
-        userId: user.id,
+        userId,
     });
     return newToDo;
 };
 
 const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
-    const {markCompleted, user, description, dueDate, title} = toDoData;
+    const {markCompleted, userId, description, dueDate, title} = toDoData;
 
     const todo = await ToDo.findOne({
         where: {
             statusId: {
                 [Op.notIn]: [status.DELETED, status.COMPLETED],
             },
-            userId: user.id,
+            userId,
 
         }
     });
@@ -92,10 +92,13 @@ const deleteToDo = async (id: number) => {
     await toDo.save();
 };
 
-const getToDoCounts = async (user: UserOutput): Promise<ToDOCountsRes> => {
+const getToDoCounts = async (userId: string): Promise<ToDOCountsRes> => {
     const results = await ToDo.findAll({
         where: {
-            userId: user.id,
+            userId,
+            statusId: {
+                [Op.ne]: status.DELETED,
+            },
         },
         attributes: [
             [
@@ -124,11 +127,14 @@ const getToDoCounts = async (user: UserOutput): Promise<ToDOCountsRes> => {
     };
 };
 
-const getPerDayCount = async (user: UserOutput) => {
+const getPerDayCount = async (userId: string) => {
 
     const result = await ToDo.findAll({
         where: {
-            userId: user.id,
+            userId,
+            statusId: {
+                [Op.ne]: status.DELETED,
+            },
         },
         attributes: [
             [
@@ -143,7 +149,7 @@ const getPerDayCount = async (user: UserOutput) => {
     return result as ToDoPerDayCountRes[];
 };
 
-const getOverdueTodoCount = async (user: UserOutput) => {
+const getOverdueTodoCount = async (userId: string) => {
     const currentDate = new Date();
 
     const count = await ToDo.count({
@@ -163,17 +169,17 @@ const getOverdueTodoCount = async (user: UserOutput) => {
                 }
             ],
             
-            userId: user.id,
+            userId,
         },
     });
     return count;
 };
 
-const getAvgCompletedPerDay = async (user: UserOutput) => {
+const getAvgCompletedPerDay = async (userId: string) => {
     const result = await ToDo.findAll({
         where: {
-            userId: user.id,
-            statusId: 4, // Assuming statusId 4 is completed
+            userId,
+            statusId: status.COMPLETED, // Assuming statusId 4 is completed
         },
         attributes: [
             [
@@ -190,11 +196,11 @@ const getAvgCompletedPerDay = async (user: UserOutput) => {
     return totalSum / result.length;
 };
 
-const getDayWithMaxCompletedTasks = async (user: UserOutput) => {
+const getDayWithMaxCompletedTasks = async (userId: string) => {
     const result = await ToDo.findAll({
         where: {
-            userId: user.id,
-            statusId: 4, // Assuming statusId 4 is completed
+            userId,
+            statusId: status.COMPLETED, // Assuming statusId 4 is completed
         },
         attributes: [
             [
@@ -211,6 +217,38 @@ const getDayWithMaxCompletedTasks = async (user: UserOutput) => {
     return result;
 };
 
+
+const getSimilars = async (userId: string) => {
+    const results = await ToDo.findAll({
+        where: {
+            userId,
+            statusId: {
+                [Op.ne]: status.DELETED,
+            }
+        },
+        attributes: [
+            "title",
+            [Sequelize.fn("STRING_AGG", Sequelize.literal("id::text"), ","), "ids"]
+        ],
+        group: ["title"],
+        having: Sequelize.literal("COUNT(*) > 1"),
+        raw: true
+    }) as unknown as SimilarsQueryResult[];
+    const allSimilarPromises = results.map(result=> {
+        return ToDo.findAll({
+            where: {
+                id: {
+                    [Op.in]: [...result.ids.split(",")]
+                },
+            }
+        });
+    });
+    const allSimilarResults = await Promise.allSettled(allSimilarPromises);
+    const similarTodos = allSimilarResults
+        .filter((result): result is PromiseFulfilledResult<ToDo[]> => result.status === "fulfilled")
+        .map((result) => result.value);
+    return similarTodos;
+};
 export default {
     createToDo,
     updateToDo,
@@ -222,4 +260,5 @@ export default {
     getOverdueTodoCount,
     getDayWithMaxCompletedTasks,
     getAvgCompletedPerDay,
+    getSimilars,
 };
