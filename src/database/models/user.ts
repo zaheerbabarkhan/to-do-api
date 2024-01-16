@@ -1,12 +1,14 @@
 import { Model, Optional, DataTypes, Sequelize } from "sequelize";
 import status from "../../constants/status";
 import { ToDo } from "./";
+import { AccountType } from "../../types/user.types";
 
 export interface UserAttributes {
     id: number,
     firstName: string,
     lastName: string,
     email: string,
+    accountType: AccountType
     password: string,
     statusId: number,
     createdAt: Date,
@@ -22,6 +24,7 @@ export class User extends Model {
     public firstName!: string;
     public lastName!: string;
     public email!: string;
+    public accountType!: AccountType;
     public password!: string;
     public statusId!: number;
 
@@ -52,10 +55,15 @@ export class User extends Model {
                 allowNull: false,
                 unique: true
             },
+            accountType: {
+                type: DataTypes.STRING(10),
+                field: "account_type",
+                allowNull: false
+            },
             password: {
                 type: DataTypes.STRING,
                 field: "password",
-                allowNull: false
+                allowNull: true
             },
             statusId: {
                 type: DataTypes.SMALLINT,

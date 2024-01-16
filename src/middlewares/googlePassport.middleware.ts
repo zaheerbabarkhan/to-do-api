@@ -16,8 +16,6 @@ export default (req: Request, res: Response, next: NextFunction) => {
                 console.error("Google authentication failed during login:", loginErr);
                 return res.status(500).json({ message: "Unauthorized" });
             }
-            console.log("its here before next");
-            console.log(req.user);
             next();
         });
     })(req, res, next);

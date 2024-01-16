@@ -15,3 +15,9 @@ export interface UserLoginRes {
     message: string;
     token: string;
 }
+
+
+export enum AccountType {
+    SOCIAL = "SOCIAL",
+    APP = "APP",
+}
