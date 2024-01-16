@@ -42,12 +42,40 @@ export const getToDoById = async (req: Request, res: Response, next: NextFunctio
 
 export const getAllToDos = async (req: Request, res: Response, next: NextFunction) => { 
     try {
-        const whereClause: WhereOptions<ToDoAttributes> =  {
+        const { query, statusId } = req.query;
+        let whereClause: WhereOptions<ToDoAttributes> =  {
             userId: res.locals.user.id,
             statusId: {
                 [Op.ne]: status.DELETED,
-            }
+            },
         };
+        if (query) {
+            whereClause = {
+                ...whereClause,
+                [Op.or]: [{title: {
+                    [Op.like]: `%${query}%`
+                }},
+                {description: {
+                    [Op.like]: `%${query}%`
+                }}]
+            };
+        }
+        if (statusId) {
+            whereClause = {
+                ...whereClause,
+                statusId: {
+                    [Op.and]: [
+                        {
+                            [Op.ne]: status.DELETED
+                        },
+                        {
+                            [Op.eq]: Number(statusId)
+                        }
+                    ]
+                }
+            };
+        }
+        
         const allTodos = await TodoService.getAllToDos(whereClause);
         res.status(200).json(allTodos);
     } catch (error) {

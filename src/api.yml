@@ -147,6 +147,22 @@
         security:
           - JWTSecurity: []
         operationId: getAllToDos
+        parameters:
+          - name: query
+            in: query
+            description: Filter for To-Dos (optional)
+            required: false
+            schema:
+              type: string
+          - name: statusId
+            in: query
+            description: Filter by status Pending(3) or Completed(4)
+            required: false
+            schema:
+              type: integer
+              enum:
+                - 3
+                - 4
         responses:
           '200':
             description: To-Dos retrieved successfully
