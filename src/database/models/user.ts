@@ -47,7 +47,7 @@ export class User extends Model {
             lastName: {
                 type: DataTypes.STRING(20),
                 field: "last_name",
-                allowNull: false,
+                allowNull: true,
             },
             email: {
                 type: DataTypes.STRING(250),
@@ -58,7 +58,8 @@ export class User extends Model {
             accountType: {
                 type: DataTypes.STRING(10),
                 field: "account_type",
-                allowNull: false
+                allowNull: false,
+                defaultValue: AccountType.APP
             },
             password: {
                 type: DataTypes.STRING,

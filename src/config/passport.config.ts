@@ -1,9 +1,8 @@
 import passport from "passport";
-import {Strategy as GoogleStrategy} from "passport-google-oauth20";
+import {Strategy as GoogleStrategy, VerifyCallback} from "passport-google-oauth20";
+import { Strategy as GitHubStrategy, Profile} from "passport-github2";
 import config from "./config";
-import { User } from "../database/models";
-import { AccountType } from "../types/user.types";
-import status from "../constants/status";
+import OAuthsService from "../services/OAuths.service";
 
 const oAuthCreds = config.OAUTH;
 passport.use(new GoogleStrategy({
@@ -11,32 +10,26 @@ passport.use(new GoogleStrategy({
     clientSecret: oAuthCreds.GOOGLE_CLIENT_SECRET,
     callbackURL: oAuthCreds.GOOGLE_CALLBACK_URL
 }, async (_accessToken, _refreshToken, profile, done) => {
-    if (profile.emails) {
-        const email = profile.emails[0].value;
-        const [user, created] = await User.findOrCreate({
-            where: {
-                email,
-                firstName: profile.name?.givenName,
-                lastName: profile.name?.familyName,
-            },
-            defaults: {
-                email,
-                firstName: profile.name?.givenName,
-                lastName: profile.name?.familyName,
-                accountType: AccountType.SOCIAL,
-                statusId: status.ACTIVE
-            }
-        });
-        if (!created && (user.statusId === status.DELETED || user.statusId === status.PENDING)) {
-            user.statusId = status.ACTIVE;
-            await user.save();
-        }
+    try {
+        const user = await OAuthsService.createUser(profile);
         done(null, user);
-    } else {
-        done(new Error("No email found"));
+    } catch(error) {
+        done(error as Error);
     }
     
 }));
 
+passport.use(new GitHubStrategy({
+    clientID: oAuthCreds.GITHUB_CLIENT_ID,
+    clientSecret: oAuthCreds.GITHUB_CLIENT_SECRET,
+    callbackURL: oAuthCreds.GITHUB_CALLBACK_URL,
+},async (_accessToken: string, _refreshToken: string, profile: Profile, done: VerifyCallback) => {
+    try {
+        const user = await OAuthsService.createUser(profile);
+        done(null, user);
+    } catch(error) {
+        done(error as Error);
+    }
+}));
 
 export default passport;

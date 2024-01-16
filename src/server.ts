@@ -13,6 +13,7 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import authMiddleware from "./middlewares/auth.middleware";
 import passport from "./config/passport.config";
 import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
+import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
 
 
 const app = express();
@@ -31,10 +32,11 @@ const apiDefinitionFilePath = path.join(__dirname, "api.yml");
 })();
 
 
-// attaching google oauth middleware to the app
+// attaching google and github oauth middleware to the app
 (() => {
     app.use(passport.initialize());
     app.get("/auth/google",passport.authenticate("google", { scope: ["profile", "email"] }));
+    app.get("/auth/github", passport.authenticate("github", { scope: [ "user:email" ] }));
 })();
 
 // making Db connection
@@ -63,7 +65,8 @@ let db: Sequelize;
             JWTSecurity: authMiddleware,
         },
         middleware: {
-            passportGoogle: googlePassportMiddleware
+            passportGoogle: googlePassportMiddleware,
+            passportGitHub: githubpassportMiddleware,
         }
     });
     connect(app);
