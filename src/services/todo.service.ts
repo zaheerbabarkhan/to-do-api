@@ -1,9 +1,11 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
-import { ToDo, ToDoOutput } from "../database/models";
-import { CreateToDoReq, DayWithTasksRes, SimilarsQueryResult, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
+import { ToDo, ToDoAttributes, ToDoOutput } from "../database/models";
+import { CreateToDoReq, DayWithTasksRes, GetAllToDos, SimilarsQueryResult, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
+import { Request } from "express";
+import moment from "moment";
 
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
@@ -59,8 +61,9 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
             statusId: {
                 [Op.ne]: status.DELETED,
             },
-            id,
+            id: id,
         },
+        attributes: []
     });
     if (!toDo) {
         throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
@@ -68,10 +71,8 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
     return toDo;
 };
 
-const getAllToDos = (whereClause: WhereOptions): Promise<ToDoOutput[]> => {
-    const allTodos = ToDo.findAll({
-        where: whereClause,
-    });
+const getAllToDos = (queryClause: GetAllToDos): Promise<ToDoOutput[]> => {
+    const allTodos = ToDo.findAll(queryClause);
     return allTodos;
 };
 
@@ -249,6 +250,78 @@ const getSimilars = async (userId: string) => {
         .map((result) => result.value);
     return similarTodos;
 };
+
+
+const getQueryClauseForAllToDos = (req: Request, userId: string) => {
+    const { query, statusId, completedAt, dueDate, attributes } = req.query;
+
+    let whereClause: WhereOptions<ToDoAttributes> =  {
+        userId,
+        statusId: {
+            [Op.ne]: status.DELETED,
+        },
+    };
+
+    const queryClause: GetAllToDos = { where: whereClause};
+
+    let requestAttributes: string[] = [];
+    if (attributes) {
+        requestAttributes = String(attributes).split(",");
+        queryClause.attributes = requestAttributes;
+    }
+    
+    if (query) {
+        whereClause = {
+            ...whereClause,
+            [Op.or]: [{
+                title: {
+                    [Op.like]: `%${query}%`
+                }
+            },
+            {
+                description: {
+                    [Op.like]: `%${query}%`
+                }
+            }]
+        };
+    }
+    if (statusId) {
+        whereClause = {
+            ...whereClause,
+            [Op.and] :{
+                statusId: {
+                    [Op.eq]: Number(statusId)
+                }
+            }
+        };
+    }
+    if (completedAt) {
+        whereClause = {
+            ...whereClause,
+            [Op.and]: [
+                Sequelize.where(
+                    Sequelize.fn("DATE", Sequelize.col("completed_at")),
+                    "=",
+                    moment(new Date(completedAt as unknown as string)).format("YYYY-MM-DD")
+                ),
+            ]
+        };
+    }
+    if (dueDate) {
+        whereClause = {
+            ...whereClause,
+            [Op.and]: [
+                Sequelize.where(
+                    Sequelize.fn("DATE", Sequelize.col("due_date")),
+                    "=",
+                    moment(new Date(dueDate as unknown as string)).format("YYYY-MM-DD")
+                ),
+            ]
+        };
+    }
+    queryClause.where = whereClause;
+    return queryClause;
+};
 export default {
     createToDo,
     updateToDo,
@@ -261,4 +334,5 @@ export default {
     getDayWithMaxCompletedTasks,
     getAvgCompletedPerDay,
     getSimilars,
+    getQueryClauseForAllToDos,
 };
