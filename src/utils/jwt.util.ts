@@ -11,7 +11,13 @@ const  verify = async (token: string) => {
     return jwt.verify(token, config.JWT.SECRET_KEY);
 };
 
+const decode = (token: string) => {
+    return jwt.decode(token, {
+        complete: true
+    });
+};
 export default {
     issueToken,
-    verify
+    verify,
+    decode,
 };

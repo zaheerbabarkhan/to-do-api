@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import UserService from "../services/user.services";
-import redis from "../database/redis";
 import httpStatus from "http-status";
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -56,11 +55,10 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
 
 export const  userLogout = async (req: Request, res: Response, next: NextFunction) => { 
     const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-        res.status(httpStatus.UNAUTHORIZED).json({
-            message: "Unauthorized"
-        });
-        return;
+    try {
+        const logOutResponse = await UserService.userLogout(res.locals.user.id, String(token));
+        res.status(httpStatus.OK).send(logOutResponse);
+    } catch (error) {
+        next(error);
     }
-    redis.sAdd()
-}
+};
