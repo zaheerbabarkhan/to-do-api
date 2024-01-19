@@ -120,6 +120,20 @@
                   $ref: '#/components/schemas/UnauthorizedResponse'
                 example:
                   message: Invalid credentials
+    /users/logout:
+      post:
+        summary: Logout endpoint
+        description: Endpoint to log the user out
+        operationId: userLogout
+        security: 
+          - JWTSecurity: []
+        responses:
+          '200':
+            description: Successful logout
+          '401':
+            description: Unauthorized - User not logged in
+          '500':
+            description: Internal Server Error
     /todos:
       post:
         summary: Create a new To-Do
