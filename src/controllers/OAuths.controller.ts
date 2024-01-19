@@ -3,11 +3,11 @@ import OAuthsService from "../services/OAuths.service";
 import { User } from "../database/models";
 import httpStatus from "http-status";
 
-export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+export const OAUTHLogin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.user) {
             const user = req.user as User;
-            const tokenResponse = OAuthsService.googleLogin(user.id);
+            const tokenResponse = OAuthsService.OAuthLogin(user.id);
             res.status(httpStatus.OK).json(tokenResponse);
         }
         else {

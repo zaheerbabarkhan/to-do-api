@@ -356,7 +356,7 @@
         description: |
           Endpoint for handling the callback from Google OAuth.
           After successful authentication, Google will redirect users to this URL.
-        operationId: googleLogin
+        operationId: OAUTHLogin
         parameters:
           - name: code
             in: query
@@ -394,7 +394,68 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/BadRequestError'
-  
+    /auth/github:
+      get:
+        tags:
+          - ToDo
+        summary: Authenticate with GitHUb
+        description: |
+          Initiate the authentication process with GitHub OAuth 2.0.
+          This returns the GitHub OAuth URL for redirection.
+        responses:
+          '200':
+            description: Successful response will redirect the user to GitHub auth
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GitHubAuthResponse'
+    /auth/github/callback:
+      get:
+        summary: GitHub OAuth Callback
+        x-middleware:
+          - passportGitHub
+        description: |
+          Endpoint for handling the callback from GitHub OAuth.
+          After successful authentication, GitHub will redirect users to this URL.
+        operationId: OAUTHLogin
+        parameters:
+          - name: code
+            in: query
+            description: The authorization code received from GitHub.
+            schema:
+              type: string
+          - name: scope
+            in: query
+            description: The state parameter received from GitHub.
+            schema:
+              type: string
+            style: form
+            allowReserved: true
+          - name: authuser
+            in: query
+            description: The state parameter received from GitHub.
+            schema:
+              type: string
+          - name: prompt
+            in: query
+            description: The state parameter received from GitHub.
+            schema:
+              type: string
+
+        responses:
+          '200':
+            description: Successful callback
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/LoginSuccessResponse'
+          '400':
+            description: Successful callback
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BadRequestError'
+    
   components:
     schemas:
       ServerInfo:
@@ -503,7 +564,7 @@
             type: string
           dueDate:
             type: string
-            format: date
+            # 
           markCompleted:
             type: boolean
         minProperties: 1
@@ -531,16 +592,16 @@
             type: string
           dueDate:
             type: string  # Assuming dueDate is a string for simplicity
-            format: date
+            
           createdAt:
             type: string  # Assuming createdAt is a string for simplicity
-            format: date
+            
           updatedAt:
             type: string  # Assuming updatedAt is a string for simplicity
-            format: date
+            
           completedAt:
             type: string
-            format: date
+            
       OverdueTodoCountResponse:
         type: object
         properties:
@@ -552,7 +613,7 @@
         properties:
           date:
             type: string
-            format: date
+            
           count:
             type: integer
             description: Count of tasks completed on the day
@@ -578,6 +639,13 @@
             url:
               type: string
               description: The URL to redirect to Google for authentication
+      GitHubAuthResponse:
+          type: object
+          properties:
+            url:
+              type: string
+              description: The URL to redirect to GitHub for authentication
+      
       UnauthorizedResponse:
         type: object
         properties:
