@@ -11,10 +11,14 @@ import swaggerUi from "swagger-ui-express";
 import * as OpenApiValidator from "express-openapi-validator";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import authMiddleware from "./middlewares/auth.middleware";
+import passport from "./config/passport.config";
+import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
+import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
 
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: false}));
 
 const apiDefinitionFilePath = path.join(__dirname, "api.yml");
 
@@ -27,8 +31,13 @@ const apiDefinitionFilePath = path.join(__dirname, "api.yml");
     app.use(OpenApiValidator.middleware(validatorOptions));
 })();
 
-// attaching error middleware
 
+// attaching google and github oauth middleware to the app
+(() => {
+    app.use(passport.initialize());
+    app.get("/auth/google",passport.authenticate("google", { scope: ["profile", "email"] }));
+    app.get("/auth/github", passport.authenticate("github", { scope: [ "user:email" ] }));
+})();
 
 // making Db connection
 let db: Sequelize;
@@ -54,6 +63,10 @@ let db: Sequelize;
     const connect = connector(api, apiDefinition, {
         security: {
             JWTSecurity: authMiddleware,
+        },
+        middleware: {
+            passportGoogle: googlePassportMiddleware,
+            passportGitHub: githubpassportMiddleware,
         }
     });
     connect(app);
@@ -65,7 +78,7 @@ let db: Sequelize;
 
 })();
 
-
+// attaching error middleware
 app.use(errorMiddleware);
 
 

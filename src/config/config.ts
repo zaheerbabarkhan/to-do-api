@@ -24,11 +24,19 @@ export default {
         SALT_ROUNDS: 10
     },
     SMTP: {
-        SMTP_EMAIL: env. SMTP_EMAIL,
+        SMTP_EMAIL: env.SMTP_EMAIL,
         SMTP_PASSWORD: env.SMTP_PASSWORD
     },
     JWT: {
         SECRET_KEY: String(env.SECRET_KEY),
         EXPIRY: String(env.EXPIRY)
+    },
+    OAUTH: {
+        GOOGLE_CLIENT_ID: String(env.GOOGLE_CLIENT_ID),
+        GOOGLE_CLIENT_SECRET: String(env.GOOGLE_CLIENT_SECRET),
+        GOOGLE_CALLBACK_URL: String(env.GOOGLE_CALLBACK_URL),
+        GITHUB_CLIENT_ID: String(env.GITHUB_CLIENT_ID),
+        GITHUB_CLIENT_SECRET: String(env.GITHUB_CLIENT_SECRET),
+        GITHUB_CALLBACK_URL: String(env.GITHUB_CALLBACK_URL),
     }
 };
