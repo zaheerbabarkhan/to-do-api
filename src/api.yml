@@ -149,6 +149,53 @@
         security:
           - JWTSecurity: []
         operationId: getAllToDos
+        parameters:
+          - name: query
+            in: query
+            description: Filter for To-Dos (optional)
+            required: false
+            schema:
+              type: string
+          - name: statusId
+            in: query
+            description: Filter by status Pending(3) or Completed(4)
+            required: false
+            schema:
+              type: integer
+              enum:
+                - 3
+                - 4
+          - name: dueDate
+            in: query
+            description: Filter by due date (optional)
+            required: false
+            schema:
+              type: string
+            allowReserved: true
+          - name: completedAt
+            in: query
+            description: Filter by completion date (optional)
+            required: false
+            schema:
+              type: string
+            allowReserved: true
+          - in: query
+            name: attributes
+            schema:
+              type: string
+            description: Comma-separated list of attributes to include in the response
+            allowReserved: true
+          - in: query
+            name: sortBy
+            schema:
+              type: string
+            description: Attribute to sort by
+          - in: query
+            name: sortDir
+            schema:
+              type: string
+              enum: [asc, desc]
+            description: Sorting direction (ascending or descending)
         responses:
           '200':
             description: To-Dos retrieved successfully
