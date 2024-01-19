@@ -16,7 +16,7 @@ const OAuthLogin = (userId: number) => {
 };
 
 const createUser = async (profile: GoogleProfile | GitHubProfile) =>{
-    if (profile.emails) {
+    if (profile.emails?.length) {
         const email = profile.emails[0].value;
         let firstName: string;
         let lastName: string;
