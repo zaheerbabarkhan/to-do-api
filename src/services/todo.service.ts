@@ -241,7 +241,8 @@ const getSimilars = async (userId: string) => {
                 id: {
                     [Op.in]: [...result.ids.split(",")]
                 },
-            }
+            },
+
         });
     });
     const allSimilarResults = await Promise.allSettled(allSimilarPromises);
@@ -253,7 +254,7 @@ const getSimilars = async (userId: string) => {
 
 
 const getQueryClauseForAllToDos = (req: Request, userId: string) => {
-    const { query, statusId, completedAt, dueDate, attributes } = req.query;
+    const { query, statusId, completedAt, dueDate, attributes, sortBy, sortDir } = req.query;
 
     let whereClause: WhereOptions<ToDoAttributes> =  {
         userId,
@@ -319,6 +320,11 @@ const getQueryClauseForAllToDos = (req: Request, userId: string) => {
             ]
         };
     }
+    if (!sortBy) {
+        queryClause.order = [["createdAt","desc"]];
+    } else {
+        queryClause.order = [[String(sortBy), String(sortDir)]];
+    }   
     queryClause.where = whereClause;
     return queryClause;
 };
