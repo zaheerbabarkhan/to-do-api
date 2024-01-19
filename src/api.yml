@@ -564,7 +564,7 @@
             type: string
           dueDate:
             type: string
-            format: date
+            # 
           markCompleted:
             type: boolean
         minProperties: 1
@@ -592,16 +592,16 @@
             type: string
           dueDate:
             type: string  # Assuming dueDate is a string for simplicity
-            format: date
+            
           createdAt:
             type: string  # Assuming createdAt is a string for simplicity
-            format: date
+            
           updatedAt:
             type: string  # Assuming updatedAt is a string for simplicity
-            format: date
+            
           completedAt:
             type: string
-            format: date
+            
       OverdueTodoCountResponse:
         type: object
         properties:
@@ -613,7 +613,7 @@
         properties:
           date:
             type: string
-            format: date
+            
           count:
             type: integer
             description: Count of tasks completed on the day
