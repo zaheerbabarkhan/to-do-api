@@ -14,6 +14,7 @@ import authMiddleware from "./middlewares/auth.middleware";
 import passport from "./config/passport.config";
 import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
 import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
+import { initCrons } from "./services/cron.service";
 
 
 const app = express();
@@ -57,6 +58,9 @@ let db: Sequelize;
 
 })();
 
+(() => {
+    initCrons();
+})();
 // attaching routes to swagger-router
 (()  => {
     const apiDefinition = YAML.load(apiDefinitionFilePath);
