@@ -1,6 +1,6 @@
 import config from "../config/config";
 import { User } from "../database/models";
-import { CreateUserReq, UserLoginRes, UserLoginReq } from "../types/user.types";
+import { CreateUserReq, UserLoginRes, UserLoginReq, AccountType } from "../types/user.types";
 import bcrypt from "bcrypt";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
@@ -113,9 +113,40 @@ const userLogout = async (userId: number, token: string) => {
     
 };
 
+const forgotPassword = async (email: string) => {
+    const user = await User.findOne({
+        where: {
+            email,
+            statusId: {
+                [Op.ne]: [status.DELETED] 
+            },
+            accountType: AccountType.APP
+        }
+    });
+    if (!user) {
+        throw new HttpError(httpStatus.BAD_REQUEST, "No user found");
+    }
+    const token = JWT.issueToken({
+        userId: user.id,
+    });
+    await EmailService.forgotPasswordEmail(user.email, token);
+};   
+
+const newPassword = async (userId: string, password: string) => {
+    const passwordHash = await bcrypt.hash(password, config.BCRYPT.SALT_ROUNDS);
+    User.update({
+        password: passwordHash
+    }, {
+        where: {
+            id: userId,
+        }
+    });
+};
 export default {
     createUser,
     confirmUserEmail,
     userLogin,
-    userLogout
+    userLogout,
+    forgotPassword,
+    newPassword,
 };
