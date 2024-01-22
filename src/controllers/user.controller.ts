@@ -62,3 +62,25 @@ export const  userLogout = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 };
+
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await UserService.forgotPassword(req.body.email);
+        res.status(httpStatus.OK).json({
+            message: "please check your email",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const newPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await UserService.newPassword(res.locals.user.id, req.body.newPassword);
+        res.status(httpStatus.OK).json({
+            message: "password updated",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
