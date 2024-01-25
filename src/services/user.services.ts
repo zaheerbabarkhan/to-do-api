@@ -10,7 +10,7 @@ import status from "../constants/status";
 import { Payload } from "../types/jwt.types";
 import { Op } from "sequelize";
 
-const  createUser = async (userData: CreateUserReq): Promise<User>  => {
+const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken, sendConfirmationEmail = EmailService.confirmationEmail): Promise<User>  => {
     const {firstName, lastName, email, password} = userData;
     
     const userExist = await User.count({
@@ -32,7 +32,10 @@ const  createUser = async (userData: CreateUserReq): Promise<User>  => {
         password: passwordHash,
     });
 
-    await sendConfirmationEmail(newUser);
+    const emailConfirmationToken = issueToken({
+        userId: newUser.id,
+    });
+    await sendConfirmationEmail(newUser.email, emailConfirmationToken);
     
     return newUser;
 };
@@ -93,12 +96,6 @@ const userLogin = async(loginData: UserLoginReq): Promise<UserLoginRes> => {
     };
 };
 
-const sendConfirmationEmail = async (user: User) => {
-    const emailConfirmationToken = JWT.issueToken({
-        userId: user.id,
-    });
-    await EmailService.confirmationEmail(user.email, emailConfirmationToken);
-};
 
 
 export default {

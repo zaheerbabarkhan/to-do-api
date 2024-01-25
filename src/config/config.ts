@@ -19,7 +19,15 @@ export default {
         DB_HOST: env.DB_HOST,
         DB_DIALECT: env.DB_DIALECT
     },
-
+    TEST_DB: {
+        DB_ALTER: (env.TEST_DB_ALTER === "true"),
+        DB_SYNC: (env.TEST_DB_SYNC === "true"),
+        DB_NAME: env.TEST_DB_NAME,
+        DB_USER: env.TEST_DB_USER,
+        DB_PASSWORD: env.TEST_DB_PASSWORD,
+        DB_HOST: env.TEST_DB_HOST,
+        DB_DIALECT: env.TEST_DB_DIALECT
+    },
     BCRYPT: {
         SALT_ROUNDS: 10
     },
