@@ -22,7 +22,8 @@ export const updateToDo = async (req: Request, res: Response, next: NextFunction
         
         const updatedToDo = await TodoService.updateToDo({
             ...req.body,
-            userId: res.locals.user.id
+            userId: res.locals.user.id,
+            todoId: Number(req.params.id)
         });
         res.status(200).json(updatedToDo);
     } catch (error) {
@@ -58,7 +59,7 @@ export const getAllToDos = async (req: Request, res: Response, next: NextFunctio
 export const deleteToDo = async (req: Request, res: Response, next: NextFunction) => { 
     try {
         const id = Number(req.params.id);
-        await TodoService.deleteToDo(id);
+        await TodoService.deleteToDo(id, res.locals.user.id);
         res.status(200).json({
             message: "To-Do deleted successfully."
         });

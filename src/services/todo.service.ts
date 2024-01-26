@@ -26,7 +26,7 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
                 [Op.notIn]: [status.DELETED, status.COMPLETED],
             },
             userId,
-
+            id: toDoData.todoId,
         }
     });
     if (!todo) {
@@ -75,13 +75,14 @@ const getAllToDos = (whereClause: WhereOptions): Promise<ToDoOutput[]> => {
     return allTodos;
 };
 
-const deleteToDo = async (id: number) => {
+const deleteToDo = async (id: number, userId: number) => {
     const toDo = await ToDo.findOne({
         where: {
             statusId: {
                 [Op.ne]: status.DELETED,
             },
             id,
+            userId,
         },
     });
     if (!toDo) {
