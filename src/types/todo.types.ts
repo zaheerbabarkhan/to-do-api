@@ -2,7 +2,7 @@ export interface CreateToDoReq {
     title: string;
     description?: string;
     dueDate: Date;
-    userId: string;
+    userId: number;
 }
 
 
@@ -11,7 +11,8 @@ export interface UpdateToDoReq {
     description?: string;
     dueDate?: Date
     markCompleted?: boolean;
-    userId: string
+    userId: number;
+    todoId: number,
 }
 
 export interface ToDOCountsRes {
