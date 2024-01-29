@@ -7,7 +7,7 @@ const port = config.PORT || 3000;
 
 const app = `http://${host}:${port}`;
 
-console.log("////////////////\n/////////////\n", app);
+
 describe("POST /api/user", () => {
     it("should create a new user", async () => {
         const userData = {
