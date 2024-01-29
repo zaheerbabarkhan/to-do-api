@@ -153,12 +153,6 @@ describe("ToDO Service class operations",  () => {
                     userId: user.id,
                 });
             }
-            let count = await ToDo.count({
-                where: {
-                    statusId: status.DELETED
-                }
-            });
-            console.log(count);
             await ToDo.update({
                 statusId: status.DELETED
             },{
@@ -166,12 +160,7 @@ describe("ToDO Service class operations",  () => {
             });
             
             await ToDo.bulkCreate(countOnDOWToDos);
-            count = await ToDo.count({
-                where: {
-                    statusId: status.DELETED
-                }
-            });
-            console.log(count);
+            
             const countOnDOW = await TodoService.getPerDayCount(user.id);
             for (const dow of countOnDOW) {
                 expect(dow.dataValues.countPerDay).toEqual("3");

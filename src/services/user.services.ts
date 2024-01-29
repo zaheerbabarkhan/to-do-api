@@ -1,6 +1,6 @@
 import config from "../config/config";
 import { User } from "../database/models";
-import { CreateUserReq, UserLoginRes, UserLoginReq } from "../types/user.types";
+import { CreateUserReq, UserLoginRes, UserLoginReq, CreateUserRes } from "../types/user.types";
 import bcrypt from "bcrypt";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
@@ -10,7 +10,7 @@ import status from "../constants/status";
 import { Payload } from "../types/jwt.types";
 import { Op } from "sequelize";
 
-const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken, sendConfirmationEmail = EmailService.confirmationEmail): Promise<User>  => {
+const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken, sendConfirmationEmail = EmailService.confirmationEmail): Promise<CreateUserRes>  => {
     const {firstName, lastName, email, password} = userData;
     
     const userExist = await User.count({
@@ -35,9 +35,17 @@ const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken,
     const emailConfirmationToken = issueToken({
         userId: newUser.id,
     });
-    await sendConfirmationEmail(newUser.email, emailConfirmationToken);
+    let emailSuccessMessage = "Confirmation email sent successfully.";
+    try {
+        await sendConfirmationEmail(newUser.email, emailConfirmationToken);
+    } catch (error) {
+        emailSuccessMessage = "Confirmation email failed. Please provide a valid email or contact support."; 
+    }
     
-    return newUser;
+    return {
+        user: newUser,
+        message: emailSuccessMessage
+    };
 };
 
 

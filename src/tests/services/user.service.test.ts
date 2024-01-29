@@ -24,18 +24,20 @@ describe("createUser", () => {
         const userData = {
             firstName: "John",
             lastName: "Doe",
-            email: "john.doe@example.com",
+            email: "unittest@example.com",
             password: "password123",
         };
 
         const result = await UserServices.createUser(userData, JWT.issueToken, EmailService.confirmationEmail);
 
-        expect(result).toHaveProperty("id");
-        expect(result).toHaveProperty("firstName");
-        expect(result).toHaveProperty("lastName");
-        expect(result).toHaveProperty("email");
-        expect(result).toHaveProperty("password");
-        expect(result).toHaveProperty("statusId");
+        expect(result).toHaveProperty("user");
+        expect(result.user).toHaveProperty("id");
+        expect(result.user).toHaveProperty("firstName");
+        expect(result.user).toHaveProperty("lastName");
+        expect(result.user).toHaveProperty("email");
+        expect(result.user).toHaveProperty("password");
+        expect(result.user).toHaveProperty("statusId");
+        expect(result).toHaveProperty("message", "Confirmation email sent successfully.");
 
         expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, config.BCRYPT.SALT_ROUNDS);
 
@@ -43,22 +45,47 @@ describe("createUser", () => {
             userId: expect.any(Number), // You can use more specific assertions if needed
         });
 
-        expect(EmailService.confirmationEmail).toHaveBeenCalledWith("john.doe@example.com", "mockedToken");
+        expect(EmailService.confirmationEmail).toHaveBeenCalledWith(userData.email, "mockedToken");
     });
 
+    it("should handle failure to send confirmation email", async () => {
+        // Mock data and dependencies
+        const userData = {
+            firstName: "Jane",
+            lastName: "Doe",
+            email: "lorumipsum@email.com",
+            password: "password456",
+        };
+    
+        const token = "mockedToken";
+        EmailService.confirmationEmail = jest.fn().mockRejectedValue("Failed to send email.");
+    
+        // Execute the service function
+        const result = await UserServices.createUser(userData,JWT.issueToken, EmailService.confirmationEmail);
+    
+        // Assertions
+        expect(result).toHaveProperty("user");
+        expect(result).toHaveProperty("message", "Confirmation email failed. Please provide a valid email or contact support.");
+    
+        // Add more assertions as necessary
+        expect(JWT.issueToken).toHaveBeenCalledWith({ userId: expect.any(Number) });
+        expect(EmailService.confirmationEmail).toHaveBeenCalledWith(userData.email, token);
+    });
     it("throws an error if the email is already registered", async () => {
 
         const userData = {
             firstName: "John",
             lastName: "Doe",
-            email: "john.doe@example.com",
+            email: "existing@example.com",
             password: "password123",
-        };        
+        };     
+        
+        await UserServices.createUser(userData, JWT.issueToken, EmailService.confirmationEmail);
         await expect(UserServices.createUser(userData, JWT.issueToken, EmailService.confirmationEmail)).rejects.toThrow(new HttpError(httpStatus.BAD_REQUEST, "Email already registered"));
 
         // // Ensure that other functions were not called
-        expect(bcrypt.hash).not.toHaveBeenCalled();
-        expect(JWT.issueToken).not.toHaveBeenCalled();
-        expect(EmailService.confirmationEmail).not.toHaveBeenCalled();
+        expect(bcrypt.hash).toHaveBeenCalledTimes(1);
+        expect(JWT.issueToken).toHaveBeenCalledTimes(1);
+        expect(EmailService.confirmationEmail).toHaveBeenCalledTimes(1);
     });
 });
