@@ -1,6 +1,10 @@
 import axios, { AxiosError } from "axios";
 import httpStatus from "http-status";
 import config from "../../config/config";
+import status from "../../constants/status";
+import { User } from "../../database/models";
+import bcrypt from "bcrypt";
+
 
 const host = config.HOST || "localhost";
 const port = config.PORT || 3000;
@@ -8,7 +12,7 @@ const port = config.PORT || 3000;
 const app = `http://${host}:${port}`;
 
 
-describe("POST /api/user", () => {
+describe("POST /user", () => {
     it("should create a new user", async () => {
         const userData = {
             firstName: "John",
@@ -35,25 +39,85 @@ describe("POST /api/user", () => {
         };
         try {
             await axios.post(`${app}/users`, userData);
-            // If the request succeeds, it means the email already exists, which is an error
-            // fail("Expected request to fail with status code 400");
         } catch (error) {
-            // Check if the error is an AxiosError
+            
             if (axios.isAxiosError(error)) {
                 const axiosError = error as AxiosError;
-                // Check if the response status is 400
-                if (axiosError.response?.status === httpStatus.BAD_REQUEST) {
-                    // Check the response data for expected message
-                    expect(axiosError.response.data).toHaveProperty("message", "Email already registered");
-                } else {
-                    // Fail the test if the status code is not 400
-                    fail(`Expected status code 400, received ${axiosError.response?.status}`);
-                }
-            } else {
-                // Fail the test if the error is not an AxiosError
-                fail("Expected an AxiosError");
+                expect(axiosError.response?.status).toBe(httpStatus.BAD_REQUEST);
+                expect(axiosError.response?.data).toHaveProperty("message", "Email already registered");
             }
         }
     });
 });
 
+describe("POST /user/login", () => {
+    it("should login a user with valid credentials", async () => {
+        const userData = {
+            firstName: "testName",
+            lastName: "testName",
+            email: "logintest@example.com",
+            password: "password123", 
+            statusId: status.ACTIVE 
+        };
+        const hashPassword = await bcrypt.hash(userData.password, config.BCRYPT.SALT_ROUNDS); 
+        await User.create({
+            ...userData,
+            password: hashPassword
+        });
+
+        const response = await axios
+            .post(`${app}/users/login`,{
+                email: userData.email,
+                password: userData.password
+            });
+
+        expect(response.status).toBe(httpStatus.OK);
+        expect(response.data).toHaveProperty("message", "Login successful");
+        expect(response.data).toHaveProperty("token");
+    });
+
+    it("should return 400 for invalid credentials", async () => {
+
+        try {
+            await axios.post(`${app}/users/login`,{
+                email: "invalid@example.com",
+                password: "invalidPassword"
+            });
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const axiosError = error as AxiosError;
+                expect(axiosError.response?.data).toHaveProperty("message", "Invalid credentials.");
+                expect(axiosError.response?.status).toBe(httpStatus.BAD_REQUEST);
+            }
+        }
+    });
+
+    it("should return 400 for pending user", async () => {
+        try {
+            const userData = {
+                firstName: "testName",
+                lastName: "testName",
+                email: "logintest@example.com",
+                password: "password123" 
+            };
+            const hashPassword = await bcrypt.hash(userData.password, config.BCRYPT.SALT_ROUNDS); 
+            await User.create({
+                ...userData,
+                password: hashPassword
+            });
+    
+            await axios
+                .post(`${app}/users/login`,{
+                    email: userData.email,
+                    password: userData.password
+                });
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const axiosError = error as AxiosError;
+                expect(axiosError.response?.data).toHaveProperty("message", "Confirm your email please");
+                console.log("////////\n///////\n",status);
+                expect(axiosError.response?.status).toBe(httpStatus.BAD_REQUEST);
+            }
+        }
+    });
+});
