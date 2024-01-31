@@ -14,13 +14,21 @@ import authMiddleware from "./middlewares/auth.middleware";
 import passport from "./config/passport.config";
 import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
 import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
+import morgan from "morgan";
+import fs from "fs";
 import { initCrons } from "./services/cron.service";
-
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
 
+
+(() => {
+    const accessLogStream = fs.createWriteStream(path.join(__dirname, "..","access.log"), { flags: "a" });
+
+    // setup the logger
+    app.use(morgan("combined", { stream: accessLogStream }));
+})();
 const apiDefinitionFilePath = path.join(__dirname, "api.yml");
 
 // attaching swagger validator middleware
