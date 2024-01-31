@@ -14,7 +14,7 @@ import authMiddleware from "./middlewares/auth.middleware";
 import passport from "./config/passport.config";
 import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
 import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
-import redis from "./database/redis";
+import { initCrons } from "./services/cron.service";
 
 
 const app = express();
@@ -58,9 +58,8 @@ let db: Sequelize;
 
 })();
 
-// connecting redis client
-(async () => {
-    await redis.connect();
+(() => {
+    initCrons();
 })();
 // attaching routes to swagger-router
 (()  => {
