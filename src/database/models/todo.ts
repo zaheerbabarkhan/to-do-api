@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 import status from "../../constants/status";
-import { User } from "./";
+import { ToDoFile, User } from "./";
 export interface ToDoAttributes {
     id: number;
     title: string;
@@ -98,6 +98,10 @@ export class ToDo extends Model {
         ToDo.belongsTo(User, {
             foreignKey: "userId",
             as: "user"
+        });
+        ToDo.hasMany(ToDoFile, {
+            foreignKey: "todoId",
+            as: "files"
         });
     }
 

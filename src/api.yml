@@ -218,7 +218,36 @@
               application/json:
                 schema:
                   $ref: '#/components/schemas/AvgCompletedPerDayResponse'
-
+    /todos/upload-url:
+      post:
+        summary: Upload File Endpoint
+        description: Endpoint to get url to upload a file
+        operationId: getSignedURLForUpload
+        security:
+          - JWTSecurity: []
+        
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileType:
+                    type: string
+                  fileName:
+                    type: string
+        responses:
+          '200':
+            description: Successful file upload
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/FileUploadResponse'
+          '400':
+            description: Bad Request - Missing or invalid parameters
+          '500':
+            description: Internal Server Error
     /todos/maxTasksDay:
       get:
         summary: Get the day with the maximum tasks completed
@@ -645,7 +674,18 @@
             url:
               type: string
               description: The URL to redirect to GitHub for authentication
-      
+      FileUploadResponse:
+        type: object
+        properties:
+          response:
+            type: object
+            properties:
+              key:
+                type: string
+              method:
+                type: string
+              url:
+                type: string
       UnauthorizedResponse:
         type: object
         properties:

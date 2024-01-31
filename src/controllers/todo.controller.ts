@@ -3,6 +3,8 @@ import TodoService from "../services/todo.service";
 import { ToDoAttributes } from "../database/models";
 import { Op, WhereOptions } from "sequelize";
 import status from "../constants/status";
+import s3Service from "../services/s3.service";
+import httpStatus from "http-status";
 
 export const createToDo = async (req: Request, res: Response, next: NextFunction) => { 
     try {
@@ -123,6 +125,15 @@ export const getSimilars = async (req: Request, res: Response, next: NextFunctio
     try {
         const result = await TodoService.getSimilars(res.locals.user.id);
         res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getSignedURLForUpload = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const signedUrl = await s3Service.presignedUpload(req.body.fileName, req.body.fileType, `todo/${res.locals.user.id}`);
+        res.status(httpStatus.OK).json(signedUrl);
     } catch (error) {
         next(error);
     }
