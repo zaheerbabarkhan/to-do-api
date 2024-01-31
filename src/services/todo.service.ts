@@ -63,7 +63,6 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
             },
             id: id,
         },
-        attributes: []
     });
     if (!toDo) {
         throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");

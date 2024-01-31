@@ -12,24 +12,23 @@ const app = `http://${host}:${port}`;
 
 let user: User;
 let token: string;
-beforeAll( async () => {
-    const userData = {
-        firstName: "testName",
-        lastName: "testName",
-        email: "todocreate@example.com",
-        password: "password123", 
-        statusId: status.ACTIVE 
-    };
-    
-    user = await User.create(userData);
-    token = JWT.issueToken({
-        userId: user.id
-    });
 
-    
-});
 describe("POST /todo", () => {
     it("should create a new todo", async () => {
+        const userData = {
+            firstName: "testName",
+            lastName: "testName",
+            email: "todocreate@example.com",
+            password: "password123", 
+            statusId: status.ACTIVE 
+        };
+        
+        user = await User.create(userData);
+        token = JWT.issueToken({
+            userId: user.id
+        });
+
+
         const todoData = {
             title: "First Todo",
             descriptiong: "First Todo description",
@@ -48,14 +47,19 @@ describe("PUT /todo/:id", () => {
     const baseUrl =  app +"/todos";
 
     it("should update a to-do successfully", async () => {
-        const todoId = 1; // Adjust the ID as per your test data
+        const newTodo = await ToDo.create({
+            title: "First Todo",
+            descriptiong: "First Todo description",
+            dueDate: new Date(new Date().setDate(new Date().getDate() + 5)),
+            userId: user.id
+        });
         const updateData = {
             title: "Updated Title",
             description: "Updated Description",
             dueDate: new Date(new Date().setDate(new Date().getDate() + 5)),
         };
 
-        const response = await axios.put(`${baseUrl}/${todoId}`, updateData, {
+        const response = await axios.put(`${baseUrl}/${newTodo.id}`, updateData, {
             headers: {"Authorization": `Bearer ${token}`}
         });
 
@@ -105,5 +109,4 @@ describe("PUT /todo/:id", () => {
         expect(response.data).toHaveProperty("statusId", status.COMPLETED);
     });
 
-    // Add more test cases as needed for different scenarios
 });

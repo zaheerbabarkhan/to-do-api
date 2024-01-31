@@ -17,6 +17,7 @@ import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
 import morgan from "morgan";
 import fs from "fs";
 import { initCrons } from "./services/cron.service";
+import redis from "./database/redis";
 
 const app = express();
 app.use(express.json());
@@ -68,6 +69,11 @@ let db: Sequelize;
 
 (() => {
     initCrons();
+})();
+
+// connecting redis client
+(async () => {
+    await redis.connect();
 })();
 // attaching routes to swagger-router
 (()  => {
