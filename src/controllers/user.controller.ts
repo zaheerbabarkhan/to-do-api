@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import UserService from "../services/user.services";
+import httpStatus from "http-status";
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const newUser = await UserService.createUser(req.body);
-        res.status(201).send(newUser);
+        res.status(httpStatus.CREATED).json(newUser);
 
     } catch (error) {
         next(error);
