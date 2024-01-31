@@ -1,4 +1,3 @@
-// redisClient.ts
 import * as redis from "redis";
 
 let client: redis.RedisClientType;
