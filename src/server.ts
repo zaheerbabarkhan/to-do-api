@@ -14,6 +14,7 @@ import authMiddleware from "./middlewares/auth.middleware";
 import passport from "./config/passport.config";
 import googlePassportMiddleware from "./middlewares/googlePassport.middleware";
 import githubpassportMiddleware from "./middlewares/githubpassport.middleware";
+import redis from "./database/redis";
 
 
 const app = express();
@@ -57,6 +58,10 @@ let db: Sequelize;
 
 })();
 
+// connecting redis client
+(async () => {
+    await redis.connect();
+})();
 // attaching routes to swagger-router
 (()  => {
     const apiDefinition = YAML.load(apiDefinitionFilePath);

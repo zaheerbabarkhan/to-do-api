@@ -9,6 +9,8 @@ import EmailService from "../services/email.service";
 import status from "../constants/status";
 import { Payload } from "../types/jwt.types";
 import { Op } from "sequelize";
+import { JwtPayload } from "jsonwebtoken";
+import RedisService from "./redis.service";
 
 const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken, sendConfirmationEmail = EmailService.confirmationEmail): Promise<CreateUserRes>  => {
     const {firstName, lastName, email, password} = userData;
@@ -105,9 +107,20 @@ const userLogin = async(loginData: UserLoginReq): Promise<UserLoginRes> => {
 };
 
 
+const userLogout = async (userId: number, token: string) => {
+    const jwtData = JWT.decode(token) as JwtPayload;
+    const expiryTimeLeft = Math.floor(Math.abs( jwtData.payload.exp - (Date.now() /1000)));
+    await RedisService.storeUserToken(token, userId, expiryTimeLeft);
+    return {
+        message: "User logged out",
+    };
+
+    
+};
 
 export default {
     createUser,
     confirmUserEmail,
     userLogin,
+    userLogout
 };

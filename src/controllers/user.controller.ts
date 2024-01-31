@@ -5,7 +5,7 @@ import httpStatus from "http-status";
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const newUser = await UserService.createUser(req.body);
-        res.status(httpStatus.CREATED).json(newUser);
+        res.status(httpStatus.CREATED).send(newUser);
 
     } catch (error) {
         next(error);
@@ -19,7 +19,7 @@ export const confirmUserEmail = async (req: Request, res: Response, next: NextFu
     const token = req.query.token;
 
     if (!token) {
-        res.status(401).json({
+        res.status(httpStatus.UNAUTHORIZED).json({
             message: "Unauthorized"
         });
         return;
@@ -27,7 +27,7 @@ export const confirmUserEmail = async (req: Request, res: Response, next: NextFu
     
     try {
         await UserService.confirmUserEmail(String(token));
-        res.status(200).json({
+        res.status(httpStatus.OK).json({
             message: "Email confirmed successfully."
         });
     } catch (error) {
@@ -45,9 +45,20 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             email,
             password,
         });
-        res.status(200).json(responseBody);
+        res.status(httpStatus.OK).json(responseBody);
     } catch (error) {
         next(error);
     }
     
+};
+
+
+export const  userLogout = async (req: Request, res: Response, next: NextFunction) => { 
+    const token = req.headers.authorization?.split(" ")[1];
+    try {
+        const logOutResponse = await UserService.userLogout(res.locals.user.id, String(token));
+        res.status(httpStatus.OK).send(logOutResponse);
+    } catch (error) {
+        next(error);
+    }
 };
