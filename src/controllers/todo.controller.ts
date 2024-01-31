@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import TodoService from "../services/todo.service";
-
+import httpStatus from "http-status";
 
 export const createToDo = async (req: Request, res: Response, next: NextFunction) => { 
     try {
@@ -8,7 +8,7 @@ export const createToDo = async (req: Request, res: Response, next: NextFunction
             ...req.body,
             userId: res.locals.user.id
         });
-        res.status(201).json(newToDo);
+        res.status(httpStatus.CREATED).json(newToDo);
         return;
     } catch (error) {
         next(error);
@@ -23,7 +23,7 @@ export const updateToDo = async (req: Request, res: Response, next: NextFunction
             userId: res.locals.user.id,
             todoId: Number(req.params.id)
         });
-        res.status(200).json(updatedToDo);
+        res.status(httpStatus.OK).json(updatedToDo);
     } catch (error) {
         next(error);
     }
@@ -33,7 +33,7 @@ export const getToDoById = async (req: Request, res: Response, next: NextFunctio
     try {
         const id = Number(req.params.id);
         const todo = await TodoService.getToDoById(id);
-        res.status(200).json(todo);
+        res.status(httpStatus.OK).json(todo);
     } catch (error) {
         next(error);
     }
@@ -43,7 +43,7 @@ export const getAllToDos = async (req: Request, res: Response, next: NextFunctio
     try {
         const queryClause = TodoService.getQueryClauseForAllToDos(req, res.locals.user.id);
         const allTodos = await TodoService.getAllToDos(queryClause);
-        res.status(200).json(allTodos);
+        res.status(httpStatus.OK).json(allTodos);
     } catch (error) {
         console.log(error);
         next(error);
@@ -65,7 +65,7 @@ export const deleteToDo = async (req: Request, res: Response, next: NextFunction
 export const getToDoCounts = async (req: Request, res: Response, next: NextFunction) => {  
     try {
         const totalCounts = await TodoService.getToDoCounts(res.locals.user.id);
-        res.status(200).json(totalCounts);
+        res.status(httpStatus.OK).json(totalCounts);
     } catch (error) {
         next(error);
     }
@@ -75,7 +75,7 @@ export const getToDoCounts = async (req: Request, res: Response, next: NextFunct
 export const getPerDayCount = async (req: Request, res: Response, next: NextFunction) => {  
     try {
         const totalCounts = await TodoService.getPerDayCount(res.locals.user.id);
-        res.status(200).json(totalCounts);
+        res.status(httpStatus.OK).json(totalCounts);
     } catch (error) {
         next(error);
     }
@@ -84,7 +84,7 @@ export const getPerDayCount = async (req: Request, res: Response, next: NextFunc
 export const getOverdueTodoCount = async (req: Request, res: Response, next: NextFunction) => {  
     try {
         const totalCounts = await TodoService.getOverdueTodoCount(res.locals.user.id);
-        res.status(200).json({
+        res.status(httpStatus.OK).json({
             overdueTodoCount: totalCounts,
         });
     } catch (error) {
@@ -95,7 +95,7 @@ export const getOverdueTodoCount = async (req: Request, res: Response, next: Nex
 export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const results = await TodoService.getDayWithMaxCompletedTasks(res.locals.user.id);
-        res.status(200).json(results[0]);
+        res.status(httpStatus.OK).json(results[0]);
     } catch (error) {
         next(error);
     } 
@@ -106,7 +106,7 @@ export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, n
 export const getAvgCompletedPerDay = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const avg = await TodoService.getAvgCompletedPerDay(res.locals.user.id);
-        res.status(200).json({
+        res.status(httpStatus.OK).json({
             avgCompletedPerDay: avg
         });
     } catch (error) {
@@ -117,7 +117,7 @@ export const getAvgCompletedPerDay = async (req: Request, res: Response, next: N
 export const getSimilars = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await TodoService.getSimilars(res.locals.user.id);
-        res.status(200).json(result);
+        res.status(httpStatus.OK).json(result);
     } catch (error) {
         next(error);
     }
