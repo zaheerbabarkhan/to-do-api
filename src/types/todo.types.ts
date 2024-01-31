@@ -1,3 +1,5 @@
+import { Order, WhereOptions } from "sequelize";
+
 export interface CreateToDoReq {
     title: string;
     description?: string;
@@ -36,4 +38,11 @@ export interface DayWithTasksRes {
 export interface SimilarsQueryResult {
     title: number;
     ids: string
+}
+
+
+export interface GetAllToDos {
+    where: WhereOptions,
+    attributes?: string[],
+    order?: Order
 }
