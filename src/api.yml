@@ -9,12 +9,12 @@
     - url: http://localhost:3000
   tags:
     - name: User
-      description: This contain all the user related APIs like signup and login or social login
+      description: This contain all the user related APIs like signup and login
     - name: Health-check
       description: This contains the route to check the health of the API wether API isw up or down
     - name: ToDo
       description: Operations related to To-Dos
-    - name: Social Auth
+    - name: Auth
       description: Operation related google and github login
   paths:
     /status-check:
@@ -67,7 +67,7 @@
                 schema:
                   "$ref": "#/components/schemas/BadRequestError"
     /users/confirm-email:
-      put:
+      get:
         tags:
           - User
         summary: Confirm user's email
@@ -120,6 +120,89 @@
                   $ref: '#/components/schemas/UnauthorizedResponse'
                 example:
                   message: Invalid credentials
+    /users/logout:
+      post:
+        tags:
+          - User
+        summary: Logout endpoint
+        description: Endpoint to log the user out
+        operationId: userLogout
+        security: 
+          - JWTSecurity: []
+        responses:
+          '200':
+            description: Successful logout
+            content:
+              application/json:
+                example:
+                  message: User successfully logged out
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UnauthorizedResponse'
+                example:
+                  message: Invalid credentials
+    /users/forgot-password:
+      post:
+        summary: Request to reset a user's password
+        tags:
+          - User
+        operationId: forgotPassword
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPasswordRequest'
+        responses:
+          '200':
+            description: Password reset request successful
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/SuccessResponse'
+          '400':
+            description: Invalid request or email not found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BadRequestError'
+    /users/new-password:
+      put:
+        summary: Update user password
+        description: Update the user's password securely.
+        operationId: newPassword
+        security: 
+         - JWTSecurity: []
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPasswordRequest'
+        responses:
+          '200':
+            description: Password updated successfully.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/SuccessResponse'
+          '400':
+            description: Bad request. Invalid input or missing parameters.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BadRequestError'
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UnauthorizedResponse'
+                example:
+                  message: Invalid credentials
     /todos:
       post:
         summary: Create a new To-Do
@@ -149,6 +232,53 @@
         security:
           - JWTSecurity: []
         operationId: getAllToDos
+        parameters:
+          - name: query
+            in: query
+            description: Filter for To-Dos (optional)
+            required: false
+            schema:
+              type: string
+          - name: statusId
+            in: query
+            description: Filter by status Pending(3) or Completed(4)
+            required: false
+            schema:
+              type: integer
+              enum:
+                - 3
+                - 4
+          - name: dueDate
+            in: query
+            description: Filter by due date (optional)
+            required: false
+            schema:
+              type: string
+            allowReserved: true
+          - name: completedAt
+            in: query
+            description: Filter by completion date (optional)
+            required: false
+            schema:
+              type: string
+            allowReserved: true
+          - in: query
+            name: attributes
+            schema:
+              type: string
+            description: Comma-separated list of attributes to include in the response
+            allowReserved: true
+          - in: query
+            name: sortBy
+            schema:
+              type: string
+            description: Attribute to sort by
+          - in: query
+            name: sortDir
+            schema:
+              type: string
+              enum: [asc, desc]
+            description: Sorting direction (ascending or descending)
         responses:
           '200':
             description: To-Dos retrieved successfully
@@ -264,6 +394,8 @@
                   $ref: '#/components/schemas/DayWithMaxCompletedTasksResponse'
     /todos/similar:
       get:
+        tags:
+          - ToDo
         summary: Get similar todos
         description: Retrieve todos grouped by similar titles.
         security:
@@ -364,7 +496,7 @@
     /auth/google:
       get:
         tags:
-          - ToDo
+          - Auth
         summary: Authenticate with Google
         description: |
           Initiate the authentication process with Google OAuth 2.0.
@@ -378,6 +510,8 @@
                   $ref: '#/components/schemas/GoogleAuthResponse'
     /auth/google/callback:
       get:
+        tags:
+          - Auth
         summary: Google OAuth Callback
         x-middleware:
           - passportGoogle
@@ -425,7 +559,7 @@
     /auth/github:
       get:
         tags:
-          - ToDo
+          - Auth
         summary: Authenticate with GitHUb
         description: |
           Initiate the authentication process with GitHub OAuth 2.0.
@@ -439,6 +573,8 @@
                   $ref: '#/components/schemas/GitHubAuthResponse'
     /auth/github/callback:
       get:
+        tags:
+          - Auth
         summary: GitHub OAuth Callback
         x-middleware:
           - passportGitHub
@@ -694,6 +830,30 @@
                 type: string
               url:
                 type: string
+      ForgotPasswordRequest:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+        required:
+          - email
+      NewPasswordRequest:
+        type: object
+        properties:
+          newPassword:
+            type: string
+            description: The new password for the user.
+        required:
+          - newPassword
+      SuccessResponse:
+        type: object
+        properties:
+          message:
+            type: string
+            description: A success message
+        required:
+          - message
       UnauthorizedResponse:
         type: object
         properties:

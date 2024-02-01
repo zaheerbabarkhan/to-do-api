@@ -6,8 +6,7 @@ import { ToDo, ToDoFile, User } from "./models";
 let sequelize: Sequelize;
 
 const connectDB = () => {
-    const dbConfig = config.DB;
-
+    const dbConfig = config.NODE_ENV === "test" ? config.TEST_DB : config.DB;
     if(sequelize && sequelize instanceof Sequelize) {
         return sequelize;
     }

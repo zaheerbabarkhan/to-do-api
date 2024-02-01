@@ -4,26 +4,36 @@ import JWT from "../utils/jwt.util";
 import { User } from "../database/models";
 import status from "../constants/status";
 import { Op } from "sequelize"; 
+import RedisService from "../services/redis.service";
+import httpStatus from "http-status";
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization as string;
+    const token = req.headers.authorization?.split(" ")[1];
    
     if (!token) {
-        res.status(401).json({
+        res.status(httpStatus.UNAUTHORIZED).json({
             message: "Unauthorized"
         });
         return;
     }
-
+    
     let payload: Payload;
     try {
-        payload = await JWT.verify(token.split(" ")[1]) as Payload;
+        payload = await JWT.verify(token) as Payload;
+        const blacklistedToken = await RedisService.getUserToken(payload.userId);
+        if (blacklistedToken && blacklistedToken === token) {
+            res.status(httpStatus.UNAUTHORIZED).json({
+                message: "Unauthorized"
+            });
+            return;
+        }
     } catch (error) {
-        res.status(401).json({
+        res.status(httpStatus.UNAUTHORIZED).json({
             message: "Unauthorized"
         });
         return;
     }
+    
     const user = await User.findOne({
         where: {
             id: payload.userId,
@@ -34,14 +44,14 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-        res.status(401).json({
+        res.status(httpStatus.UNAUTHORIZED).json({
             message: "Unauthorized"
         });
         return;
     }
 
     if(user.statusId === status.PENDING) {
-        res.status(401).json({
+        res.status(httpStatus.UNAUTHORIZED).json({
             message: "You need to confirm your email first"
         });
         return;
