@@ -225,7 +225,6 @@
         operationId: getSignedURLForUpload
         security:
           - JWTSecurity: []
-        
         requestBody:
           required: true
           content:
@@ -570,9 +569,14 @@
             type: string
           dueDate:
             type: string  # Assuming dueDate is a string for simplicity
+          files:
+            type: array
+            items:
+              type: string
         required:
           - title
           - dueDate
+
       PerDayCountResponse:
         type: array
         items:
@@ -593,11 +597,15 @@
             type: string
           dueDate:
             type: string
-            # 
           markCompleted:
             type: boolean
+          files:
+            type: array
+            items:
+              type: string
         minProperties: 1
-        maxProperties: 3
+        maxProperties: 4
+
       ToDoCountsResponse:
         type: object
         properties:

@@ -1,19 +1,38 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
-import { ToDo, ToDoOutput } from "../database/models";
+import { ToDo, ToDoFile, ToDoOutput } from "../database/models";
 import { CreateToDoReq, DayWithTasksRes, SimilarsQueryResult, ToDOCountsRes, ToDoPerDayCountRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
-    const { title, dueDate, description, userId } = toDoData;
-    const newToDo = await ToDo.create({
+    const { title, dueDate, description, userId, files } = toDoData;
+    let newToDo = await ToDo.create({
         title,
         description,
         dueDate,
         userId,
     });
+    if (files?.length) {
+        const createFiles = [];
+        for (const file of files) {
+            createFiles.push(ToDoFile.create({
+                title: file,
+                todoId: newToDo.id,
+            }));
+        }
+        await Promise.allSettled(createFiles);
+        newToDo = await ToDo.findOne({
+            where: {
+                id: newToDo.id,
+            },
+            include: {
+                model: ToDoFile,
+                as: "files"
+            }
+        }) as ToDo;
+    }
     return newToDo;
 };
 

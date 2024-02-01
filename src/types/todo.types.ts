@@ -3,6 +3,7 @@ export interface CreateToDoReq {
     description?: string;
     dueDate: Date;
     userId: string;
+    files?: string[];
 }
 
 

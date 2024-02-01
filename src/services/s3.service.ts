@@ -1,9 +1,12 @@
 import { S3 } from "aws-sdk";
 import config from "../config/config";
 import {uuid} from "uuidv4";
+
+
+
 const awsConfig = config.AWS;
 
-const s3Clinet = new S3({
+const s3Client = new S3({
     params: {
         Bucket: awsConfig.BUCKET_NAME
     },
@@ -29,7 +32,7 @@ const presignedUpload = async (fileName: string, fileType: string, path: string)
         Expires: 600,
     };
     
-    const url = await s3Clinet.getSignedUrlPromise(
+    const url = await s3Client.getSignedUrlPromise(
         "putObject",
         params);
     return { method: "PUT", url, key: params.Key };

@@ -67,7 +67,7 @@ export class ToDoFile extends Model {
     public static associateModel() {
         ToDoFile.belongsTo(ToDo, {
             foreignKey: "todoId",
-            as: "Files"
+            as: "todo"
         });
     }
 
