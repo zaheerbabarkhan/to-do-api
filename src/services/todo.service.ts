@@ -1,6 +1,6 @@
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import status from "../constants/status";
-import { ToDo, ToDoAttributes, ToDoOutput } from "../database/models";
+import { ToDo, ToDoAttributes, ToDoFile, ToDoOutput } from "../database/models";
 import { CreateToDoReq, DayWithTasksRes, GetAllToDos, SimilarsQueryResult, ToDOCountsRes, UpdateToDoReq } from "../types/todo.types";
 import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
@@ -9,26 +9,45 @@ import moment from "moment";
 
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
-    const { title, dueDate, description, userId } = toDoData;
-    const newToDo = await ToDo.create({
+    const { title, dueDate, description, userId, files } = toDoData;
+    let newToDo = await ToDo.create({
         title,
         description,
         dueDate,
         userId,
     });
+    if (files?.length) {
+        const createFiles = [];
+        for (const file of files) {
+            createFiles.push(ToDoFile.create({
+                title: file,
+                todoId: newToDo.id,
+            }));
+        }
+        await Promise.allSettled(createFiles);
+        newToDo = await ToDo.findOne({
+            where: {
+                id: newToDo.id,
+            },
+            include: {
+                model: ToDoFile,
+                as: "files"
+            }
+        }) as ToDo;
+    }
     return newToDo;
 };
 
 const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
-    const {markCompleted, userId, description, dueDate, title} = toDoData;
+    const {markCompleted, userId, description, dueDate, title, files, todoId} = toDoData;
 
-    const todo = await ToDo.findOne({
+    let todo = await ToDo.findOne({
         where: {
             statusId: {
                 [Op.notIn]: [status.DELETED, status.COMPLETED],
             },
             userId,
-            id: toDoData.todoId,
+            id: todoId,
         }
     });
     if (!todo) {
@@ -40,6 +59,25 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
         todo.statusId = status.COMPLETED;
         await todo.save();
         return todo;
+    }
+    if (files?.length) {
+        const createFiles = [];
+        for (const file of files) {
+            createFiles.push(ToDoFile.create({
+                title: file,
+                todoId,
+            }));
+        }
+        await Promise.allSettled(createFiles);
+        todo = await ToDo.findOne({
+            where: {
+                id: todoId,
+            },
+            include: {
+                model: ToDoFile,
+                as: "files"
+            }
+        }) as ToDo;
     }
     if (description) {
         todo.description = description;
@@ -63,6 +101,10 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
             },
             id: id,
         },
+        include: {
+            model: ToDoFile,
+            as: "files"
+        }
     });
     if (!toDo) {
         throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
@@ -263,7 +305,13 @@ const getQueryClauseForAllToDos = (req: Request, userId: string) => {
         },
     };
 
-    const queryClause: GetAllToDos = { where: whereClause};
+    const queryClause: GetAllToDos = { 
+        where: whereClause,
+        include: {
+            model: ToDoFile,
+            as: "files"
+        }
+    };
 
     let requestAttributes: string[] = [];
     if (attributes) {

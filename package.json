@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.504.0",
+    "@aws-sdk/s3-request-presigner": "^3.504.0",
+    "aws-sdk": "^2.1547.0",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
@@ -36,6 +39,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-routes-express": "^3.3.2",
     "swagger-ui-express": "^5.0.0",
+    "uuidv4": "^6.2.13",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {

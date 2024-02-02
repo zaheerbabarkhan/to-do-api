@@ -46,5 +46,11 @@ export default {
         GITHUB_CLIENT_ID: String(env.GITHUB_CLIENT_ID),
         GITHUB_CLIENT_SECRET: String(env.GITHUB_CLIENT_SECRET),
         GITHUB_CALLBACK_URL: String(env.GITHUB_CALLBACK_URL),
+    },
+    AWS: {
+        ACCESS_KEY: String(env.AWS_CLIENT_ACCESS_KEY),
+        SECRET_KEY: String(env.AWS_CLIENT_SECRET_KEY),
+        REGION: env.AWS_REGION,
+        BUCKET_NAME: env.AWS_S3_BUCKET
     }
 };

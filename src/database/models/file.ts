@@ -1,39 +1,33 @@
 import { DataTypes, Model, Op, Optional, Sequelize } from "sequelize";
+import { ToDo } from "./";
+import s3Service from "../../services/s3.service";
 import status from "../../constants/status";
-import { ToDoFile, User } from "./";
-export interface ToDoAttributes {
+export interface FileAttributes {
     id: number;
     title: string;
-    description: string;
-    dueDate: Date;
-    statusId: number;
-    completedAt: Date;
-    userId: number;
-
+    todoId: number;
+    statusID: number;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date;
 }
 
 
-export interface ToDoInput extends Optional<ToDoAttributes, "id"> {}
-export interface ToDoOutput extends Required<ToDoAttributes> {}
+export interface FileInput extends Optional<FileAttributes, "id"> {}
+export interface FileOutput extends Required<FileAttributes> {}
 
-export class ToDo extends Model {
+export class ToDoFile extends Model {
     public id!: number;
     public title!: string;
-    public description!: string;
-    public dueDate!: Date;
+    public todoId!: number;
     public statusId!: number;
-    public completedAt!: Date;
-    public userId!: number;
 
     public createdAt!: Date;
     public updatedAt!: Date;
     public deletedAt!: Date;
 
     public static initModel(sequelize: Sequelize) {
-        ToDo.init({
+        ToDoFile.init({
             id: {
                 type: DataTypes.INTEGER.UNSIGNED,
                 field: "id",
@@ -45,14 +39,9 @@ export class ToDo extends Model {
                 field: "title",
                 allowNull: false,
             },
-            description: {
-                type: DataTypes.STRING(1000), // Adjust the length as needed
-                field: "description",
-                allowNull: true,
-            },
-            dueDate: {
-                type: DataTypes.DATE,
-                field: "due_date",
+            todoId: {
+                type: DataTypes.INTEGER.UNSIGNED,
+                field: "todo_id",
                 allowNull: false,
             },
             statusId: {
@@ -61,15 +50,13 @@ export class ToDo extends Model {
                 allowNull: false,
                 defaultValue: status.PENDING,
             },
-            completedAt: {
-                type: DataTypes.DATE,
-                field: "completed_at",
-                allowNull: true,
-            },
-            userId: {
-                type: DataTypes.INTEGER.UNSIGNED,
-                field: "user_id",
-                allowNull: false,
+            signedUrl: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (!(this.getDataValue("title"))) return "";
+                        
+                    return s3Service.getSignedUrl(this.getDataValue("title"));
+                },
             },
             createdAt: {
                 type: DataTypes.DATE,
@@ -87,13 +74,12 @@ export class ToDo extends Model {
             },
         }, {
             timestamps: true,
-            paranoid: true, // Enable soft deletion
-            deletedAt: "deletedAt", // Specify the field name for soft deletion
+            paranoid: true, 
+            deletedAt: "deletedAt",
             sequelize,
-            tableName: "todos"
+            tableName: "todos_files"
         });
-
-        ToDo.addScope("defaultScope", {
+        ToDoFile.addScope("defaultScope", {
             where: {
                 statusId: {
                     [Op.ne]: status.DELETED
@@ -102,22 +88,16 @@ export class ToDo extends Model {
             attributes: {
                 exclude: ["createdAt", "deletedAt", "updatedAt"]
             }
-        }, {
-            override: true,
         });
     }
 
     public static associateModel() {
-        ToDo.belongsTo(User, {
-            foreignKey: "userId",
-            as: "user"
-        });
-        ToDo.hasMany(ToDoFile, {
+        ToDoFile.belongsTo(ToDo, {
             foreignKey: "todoId",
-            as: "files"
+            as: "todo"
         });
     }
 
 }
 
-export default ToDo;
+export default ToDoFile;
