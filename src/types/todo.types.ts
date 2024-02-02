@@ -1,4 +1,4 @@
-import { Order, WhereOptions } from "sequelize";
+import { Order, WhereOptions, IncludeOptions } from "sequelize";
 
 export interface CreateToDoReq {
     title: string;
@@ -16,6 +16,7 @@ export interface UpdateToDoReq {
     markCompleted?: boolean;
     userId: number;
     todoId: number,
+    files?: string[]
 }
 
 export interface ToDOCountsRes {
@@ -45,5 +46,6 @@ export interface SimilarsQueryResult {
 export interface GetAllToDos {
     where: WhereOptions,
     attributes?: string[],
-    order?: Order
+    order?: Order,
+    include: IncludeOptions,
 }

@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Op, Optional, Sequelize } from "sequelize";
 import status from "../../constants/status";
 import { ToDoFile, User } from "./";
 export interface ToDoAttributes {
@@ -91,6 +91,19 @@ export class ToDo extends Model {
             deletedAt: "deletedAt", // Specify the field name for soft deletion
             sequelize,
             tableName: "todos"
+        });
+
+        ToDo.addScope("defaultScope", {
+            where: {
+                statusId: {
+                    [Op.ne]: status.DELETED
+                }
+            },
+            attributes: {
+                exclude: ["createdAt", "deletedAt", "updatedAt"]
+            }
+        }, {
+            override: true,
         });
     }
 

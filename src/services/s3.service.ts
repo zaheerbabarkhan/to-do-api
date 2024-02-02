@@ -38,7 +38,11 @@ const presignedUpload = async (fileName: string, fileType: string, path: string)
     return { method: "PUT", url, key: params.Key };
 };
 
+const getSignedUrl = (s3Key: string): string => {
+    return s3Client.getSignedUrl("getObject", { Bucket: awsConfig.BUCKET_NAME , Key: s3Key });
+};
 
 export default {
     presignedUpload,
+    getSignedUrl,
 };

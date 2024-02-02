@@ -39,15 +39,15 @@ const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
 };
 
 const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
-    const {markCompleted, userId, description, dueDate, title} = toDoData;
+    const {markCompleted, userId, description, dueDate, title, files, todoId} = toDoData;
 
-    const todo = await ToDo.findOne({
+    let todo = await ToDo.findOne({
         where: {
             statusId: {
                 [Op.notIn]: [status.DELETED, status.COMPLETED],
             },
             userId,
-            id: toDoData.todoId,
+            id: todoId,
         }
     });
     if (!todo) {
@@ -59,6 +59,25 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
         todo.statusId = status.COMPLETED;
         await todo.save();
         return todo;
+    }
+    if (files?.length) {
+        const createFiles = [];
+        for (const file of files) {
+            createFiles.push(ToDoFile.create({
+                title: file,
+                todoId,
+            }));
+        }
+        await Promise.allSettled(createFiles);
+        todo = await ToDo.findOne({
+            where: {
+                id: todoId,
+            },
+            include: {
+                model: ToDoFile,
+                as: "files"
+            }
+        }) as ToDo;
     }
     if (description) {
         todo.description = description;
@@ -82,6 +101,10 @@ const getToDoById = async (id: number): Promise<ToDoOutput> => {
             },
             id: id,
         },
+        include: {
+            model: ToDoFile,
+            as: "files"
+        }
     });
     if (!toDo) {
         throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
@@ -282,7 +305,13 @@ const getQueryClauseForAllToDos = (req: Request, userId: string) => {
         },
     };
 
-    const queryClause: GetAllToDos = { where: whereClause};
+    const queryClause: GetAllToDos = { 
+        where: whereClause,
+        include: {
+            model: ToDoFile,
+            as: "files"
+        }
+    };
 
     let requestAttributes: string[] = [];
     if (attributes) {

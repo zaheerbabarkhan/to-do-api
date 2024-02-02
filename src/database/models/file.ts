@@ -1,10 +1,12 @@
-import { DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Op, Optional, Sequelize } from "sequelize";
 import { ToDo } from "./";
+import s3Service from "../../services/s3.service";
+import status from "../../constants/status";
 export interface FileAttributes {
     id: number;
     title: string;
     todoId: number;
-
+    statusID: number;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date;
@@ -18,6 +20,7 @@ export class ToDoFile extends Model {
     public id!: number;
     public title!: string;
     public todoId!: number;
+    public statusId!: number;
 
     public createdAt!: Date;
     public updatedAt!: Date;
@@ -41,6 +44,20 @@ export class ToDoFile extends Model {
                 field: "todo_id",
                 allowNull: false,
             },
+            statusId: {
+                type: DataTypes.INTEGER.UNSIGNED,
+                field: "status_id",
+                allowNull: false,
+                defaultValue: status.PENDING,
+            },
+            signedUrl: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (!(this.getDataValue("title"))) return "";
+                        
+                    return s3Service.getSignedUrl(this.getDataValue("title"));
+                },
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 field: "created_at",
@@ -57,10 +74,20 @@ export class ToDoFile extends Model {
             },
         }, {
             timestamps: true,
-            paranoid: true, // Enable soft deletion
-            deletedAt: "deletedAt", // Specify the field name for soft deletion
+            paranoid: true, 
+            deletedAt: "deletedAt",
             sequelize,
             tableName: "todos_files"
+        });
+        ToDoFile.addScope("defaultScope", {
+            where: {
+                statusId: {
+                    [Op.ne]: status.DELETED
+                }
+            },
+            attributes: {
+                exclude: ["createdAt", "deletedAt", "updatedAt"]
+            }
         });
     }
 
