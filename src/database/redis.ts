@@ -1,4 +1,5 @@
 import * as redis from "redis";
+import logger from "../utils/logger";
 
 let client: redis.RedisClientType;
 
@@ -6,10 +7,14 @@ const createClient = (): redis.RedisClientType => {
     if (!client) {
         client = redis.createClient();
         client.on("connect", () => {
-            console.log("Connected to Redis");      
+            logger.info("Connected to Redis", {
+                label: "Redis Connection"
+            });      
         });  
         client.on("error", (err: unknown) => {
-            console.error(`Error connecting to Redis: ${err}`);
+            logger.error(`Error connecting to Redis: ${err}`, {
+                label: "Redis Connection",
+            });
         });
     }
 
