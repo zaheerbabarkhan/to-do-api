@@ -11,7 +11,9 @@ import { Payload } from "../types/jwt.types";
 import { Op } from "sequelize";
 import { JwtPayload } from "jsonwebtoken";
 import RedisService from "./redis.service";
+import logger from "../utils/logger";
 
+const loggerLabel = "User Service";
 const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken, sendConfirmationEmail = EmailService.confirmationEmail): Promise<CreateUserRes>  => {
     const {firstName, lastName, email, password} = userData;
     
@@ -33,7 +35,9 @@ const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken,
         email,
         password: passwordHash,
     });
-
+    logger.info(`Created new user with Id: ${newUser.id}`, {
+        label: loggerLabel
+    });
     const emailConfirmationToken = issueToken({
         userId: newUser.id,
     });
@@ -41,6 +45,9 @@ const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken,
     try {
         await sendConfirmationEmail(newUser.email, emailConfirmationToken);
     } catch (error) {
+        logger.error(`Error occured while sending email confirmation error: ${JSON.stringify(error)}`, {
+            label: loggerLabel
+        });
         emailSuccessMessage = "Confirmation email failed. Please provide a valid email or contact support."; 
     }
     
@@ -74,6 +81,9 @@ const confirmUserEmail = async (token: string) => {
     if(user.statusId === status.ACTIVE) {
         throw new HttpError(httpStatus.BAD_REQUEST, "Email confirmed already");
     }
+    logger.info(`User: ${user.id} email confirmed successfully`, {
+        label: loggerLabel
+    });
     user.statusId = status.ACTIVE;
     await user.save();
 };
@@ -100,6 +110,9 @@ const userLogin = async(loginData: UserLoginReq): Promise<UserLoginRes> => {
     const token = JWT.issueToken({
         userId: user.id
     });
+    logger.info(`User: ${user.id} loggedin successfully`, {
+        label: loggerLabel
+    });
     return {
         message: "Login successful",
         token,
@@ -111,6 +124,9 @@ const userLogout = async (userId: number, token: string) => {
     const jwtData = JWT.decode(token) as JwtPayload;
     const expiryTimeLeft = Math.floor(Math.abs( jwtData.payload.exp - (Date.now() /1000)));
     await RedisService.storeUserToken(token, userId, expiryTimeLeft);
+    logger.info(`User: ${jwtData.payload.userId} loggedout successfully`, {
+        label: loggerLabel
+    });
     return {
         message: "User logged out",
     };
@@ -134,7 +150,13 @@ const forgotPassword = async (email: string) => {
     const token = JWT.issueToken({
         userId: user.id,
     });
+    logger.info(`User: ${user.id} requested forgot password`, {
+        label: loggerLabel
+    });
     await EmailService.forgotPasswordEmail(user.email, token);
+    logger.info(`User: ${user.id} forgot password email sent`, {
+        label: loggerLabel
+    });
 };   
 
 const newPassword = async (userId: string, password: string) => {
@@ -145,6 +167,9 @@ const newPassword = async (userId: string, password: string) => {
         where: {
             id: userId,
         }
+    });
+    logger.info(`User: ${userId} password updated`, {
+        label: loggerLabel
     });
 };
 export default {

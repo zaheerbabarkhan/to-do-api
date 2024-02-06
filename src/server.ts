@@ -18,6 +18,7 @@ import morgan from "morgan";
 import fs from "fs";
 import { initCrons } from "./services/cron.service";
 import redis from "./database/redis";
+import logger from "./utils/logger";
 
 const app = express();
 app.use(express.json());
@@ -62,7 +63,10 @@ let db: Sequelize;
             alter: config.DB.DB_ALTER
         });
     } catch (error) {
-        console.log("DB Connection erorr:", error);
+        logger.error({
+            label: "DB Connection",
+            message: JSON.stringify(error),
+        });
     }
 
 })();
@@ -102,5 +106,7 @@ app.use(errorMiddleware);
 
 
 app.listen(config.PORT, () => {
-    console.log(`API server is listening on the http://${config.HOST}:${config.PORT}`);
+    logger.info(`API server is listening on the http://${config.HOST}:${config.PORT}`,{
+        label: "Server Connection"
+    });
 });

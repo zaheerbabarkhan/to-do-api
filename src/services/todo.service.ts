@@ -6,7 +6,9 @@ import { HttpError } from "../errors/http.error";
 import httpStatus from "http-status";
 import { Request } from "express";
 import moment from "moment";
+import logger from "../utils/logger";
 
+const loggerLabel = "Todo Service";
 
 const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
     const { title, dueDate, description, userId, files } = toDoData;
@@ -35,6 +37,9 @@ const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
             }
         }) as ToDo;
     }
+    logger.info(`new todo: ${newToDo.id} created against user: ${userId}`, {
+        label: loggerLabel
+    });
     return newToDo;
 };
 
@@ -58,6 +63,9 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
         todo.completedAt = new Date();
         todo.statusId = status.COMPLETED;
         await todo.save();
+        logger.info(`todo: ${todo.id} marked completed against user: ${userId}`, {
+            label: loggerLabel
+        });
         return todo;
     }
     if (files?.length) {
@@ -90,6 +98,9 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
     }
 
     await todo.save();
+    logger.info(`new todo: ${todo.id} created against user: ${userId}`, {
+        label: loggerLabel
+    });
     return todo;   
 };
 
@@ -130,9 +141,13 @@ const deleteToDo = async (id: number, userId: number) => {
     if (!toDo) {
         throw new HttpError(httpStatus.NOT_FOUND, "To-Do not found");
     }
+    
     toDo.statusId = status.DELETED;
     toDo.deletedAt = new Date();
     await toDo.save();
+    logger.info(`todo: ${toDo.id} deleted against user: ${userId}`, {
+        label: loggerLabel
+    });
 };
 
 const getToDoCounts = async (userId: string): Promise<ToDOCountsRes> => {

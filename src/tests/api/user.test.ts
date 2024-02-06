@@ -115,7 +115,6 @@ describe("POST /user/login", () => {
             if (axios.isAxiosError(error)) {
                 const axiosError = error as AxiosError;
                 expect(axiosError.response?.data).toHaveProperty("message", "Confirm your email please");
-                console.log("////////\n///////\n",status);
                 expect(axiosError.response?.status).toBe(httpStatus.BAD_REQUEST);
             }
         }

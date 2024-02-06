@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import TodoService from "../services/todo.service";
 import s3Service from "../services/s3.service";
 import httpStatus from "http-status";
+import { HttpError } from "../errors/http.error";
+import logger from "../utils/logger";
 
+const loggerLabel = "Todo Controller";
 export const createToDo = async (req: Request, res: Response, next: NextFunction) => { 
     try {
         const newToDo = await TodoService.createToDo({
@@ -12,6 +15,11 @@ export const createToDo = async (req: Request, res: Response, next: NextFunction
         res.status(httpStatus.CREATED).json(newToDo);
         return;
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -26,6 +34,11 @@ export const updateToDo = async (req: Request, res: Response, next: NextFunction
         });
         res.status(httpStatus.OK).json(updatedToDo);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -36,6 +49,11 @@ export const getToDoById = async (req: Request, res: Response, next: NextFunctio
         const todo = await TodoService.getToDoById(id);
         res.status(httpStatus.OK).json(todo);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -46,7 +64,11 @@ export const getAllToDos = async (req: Request, res: Response, next: NextFunctio
         const allTodos = await TodoService.getAllToDos(queryClause);
         res.status(httpStatus.OK).json(allTodos);
     } catch (error) {
-        console.log(error);
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: "Get All Todos"
+            });
+        }
         next(error);
     }
 };
@@ -59,6 +81,11 @@ export const deleteToDo = async (req: Request, res: Response, next: NextFunction
             message: "To-Do deleted successfully."
         });
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -68,6 +95,11 @@ export const getToDoCounts = async (req: Request, res: Response, next: NextFunct
         const totalCounts = await TodoService.getToDoCounts(res.locals.user.id);
         res.status(httpStatus.OK).json(totalCounts);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -78,6 +110,11 @@ export const getPerDayCount = async (req: Request, res: Response, next: NextFunc
         const totalCounts = await TodoService.getPerDayCount(res.locals.user.id);
         res.status(httpStatus.OK).json(totalCounts);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -89,6 +126,11 @@ export const getOverdueTodoCount = async (req: Request, res: Response, next: Nex
             overdueTodoCount: totalCounts,
         });
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -98,6 +140,11 @@ export const getDayWithMaxCompletedTasks = async (req: Request, res: Response, n
         const results = await TodoService.getDayWithMaxCompletedTasks(res.locals.user.id);
         res.status(httpStatus.OK).json(results[0]);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     } 
 };
@@ -111,6 +158,11 @@ export const getAvgCompletedPerDay = async (req: Request, res: Response, next: N
             avgCompletedPerDay: avg
         });
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     } 
 };
@@ -120,6 +172,11 @@ export const getSimilars = async (req: Request, res: Response, next: NextFunctio
         const result = await TodoService.getSimilars(res.locals.user.id);
         res.status(httpStatus.OK).json(result);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
@@ -129,6 +186,11 @@ export const getSignedURLForUpload = async (req: Request, res: Response, next: N
         const signedUrl = await s3Service.presignedUpload(req.body.fileName, req.body.fileType, `todo/${res.locals.user.id}`);
         res.status(httpStatus.OK).json(signedUrl);
     } catch (error) {
+        if(!(error instanceof HttpError)) {
+            logger.error(JSON.stringify(error), {
+                label: loggerLabel
+            });
+        }
         next(error);
     }
 };
