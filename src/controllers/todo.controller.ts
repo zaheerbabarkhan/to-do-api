@@ -10,7 +10,8 @@ export const createToDo = async (req: Request, res: Response, next: NextFunction
     try {
         const newToDo = await TodoService.createToDo({
             ...req.body,
-            userId: res.locals.user.id
+            userId: res.locals.user.id,
+            files: req.files
         });
         res.status(httpStatus.CREATED).json(newToDo);
         return;

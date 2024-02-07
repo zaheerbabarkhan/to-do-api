@@ -211,11 +211,13 @@
         security: 
           - JWTSecurity: []
         operationId: createToDo
+        # x-middleware:
+        #   - fileUpload
         requestBody:
           description: To-Do data
           required: true
           content:
-            application/json:
+            multipart/form-data:
               schema:
                 $ref: '#/components/schemas/ToDoCreateRequest'
         responses:
@@ -418,6 +420,8 @@
         security:
           - JWTSecurity: []
         operationId: updateToDo
+        x-middleware:
+          - fileUpload
         parameters:
           - in: path
             name: id
@@ -704,14 +708,11 @@
           description:
             type: string
           dueDate:
-            type: string  # Assuming dueDate is a string for simplicity
-          files:
-            type: array
-            items:
-              type: string
+            type: string
         required:
           - title
           - dueDate
+
 
       PerDayCountResponse:
         type: array

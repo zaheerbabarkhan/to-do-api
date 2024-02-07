@@ -7,6 +7,7 @@ import httpStatus from "http-status";
 import { Request } from "express";
 import moment from "moment";
 import logger from "../utils/logger";
+import S3Service from "../services/s3.service";
 
 const loggerLabel = "Todo Service";
 
@@ -21,10 +22,17 @@ const createToDo = async (toDoData: CreateToDoReq): Promise<ToDoOutput> => {
     if (files?.length) {
         const createFiles = [];
         for (const file of files) {
-            createFiles.push(ToDoFile.create({
-                title: file,
-                todoId: newToDo.id,
-            }));
+            
+            try {
+                const {Key} = await S3Service.upload(file.originalname, file.buffer, `todo/${userId}`);
+                createFiles.push(ToDoFile.create({
+                    title: Key,
+                    todoId: newToDo.id,
+                }));
+            } catch (error) {
+                logger.error(`File: ${file.originalname} not uploaded against user: ${userId} with error ${JSON.stringify(error)}`);
+            }
+            
         }
         await Promise.allSettled(createFiles);
         newToDo = await ToDo.findOne({

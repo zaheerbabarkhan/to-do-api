@@ -51,6 +51,6 @@ export default {
         ACCESS_KEY: String(env.AWS_CLIENT_ACCESS_KEY),
         SECRET_KEY: String(env.AWS_CLIENT_SECRET_KEY),
         REGION: env.AWS_REGION,
-        BUCKET_NAME: env.AWS_S3_BUCKET
+        BUCKET_NAME: String(env.AWS_S3_BUCKET)
     }
 };
