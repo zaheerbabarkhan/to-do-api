@@ -18,6 +18,21 @@ const s3Client = new S3({
 });
 
 
+const upload = async (fileName: string, fileData: Buffer, path: string) => {
+    fileName = fileName.replace(
+        // eslint-disable-next-line no-useless-escape
+        /[^0-9a-z\.\-\_]+/gi,
+        "_",
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response = await s3Client.upload({
+        Key: `${path}/${uuid()}-${fileName.split("/").pop()}`,
+        Bucket: awsConfig.BUCKET_NAME,
+        Body: fileData,
+    }).promise();
+    return response;
+};
+
 const presignedUpload = async (fileName: string, fileType: string, path: string): Promise<{ method: string; url: string; key: string; }> => {
     
     fileName = fileName.replace(
@@ -45,4 +60,5 @@ const getSignedUrl = (s3Key: string): string => {
 export default {
     presignedUpload,
     getSignedUrl,
+    upload,
 };
