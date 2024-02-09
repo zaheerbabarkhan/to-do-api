@@ -9,7 +9,7 @@
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/server.js",
-    "test": "jest"
+    "test": "jest src/tests/services && jest src/tests/api/"
   },
   "keywords": [],
   "author": "",
