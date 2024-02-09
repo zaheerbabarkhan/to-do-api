@@ -112,17 +112,16 @@ const updateToDo = async (toDoData: UpdateToDoReq): Promise<ToDoOutput> => {
     return todo;   
 };
 
-const getToDoById = async (id: number): Promise<ToDoOutput> => {
+const getToDoById = async (id: number, userId: number): Promise<ToDoOutput> => {
     const toDo = await ToDo.findOne({
         where: {
-            statusId: {
-                [Op.ne]: status.DELETED,
-            },
-            id: id,
+            id,
+            userId,
         },
         include: {
             model: ToDoFile,
-            as: "files"
+            as: "files",
+            required: false
         }
     });
     if (!toDo) {

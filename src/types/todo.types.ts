@@ -4,7 +4,7 @@ export interface CreateToDoReq {
     title: string;
     description?: string;
     dueDate: Date;
-    userId: string;
+    userId: number;
     files?: Express.Multer.File[];
 }
 

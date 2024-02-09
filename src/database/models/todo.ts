@@ -59,7 +59,7 @@ export class ToDo extends Model {
                 type: DataTypes.INTEGER.UNSIGNED,
                 field: "status_id",
                 allowNull: false,
-                defaultValue: status.PENDING,
+                defaultValue: status.ACTIVE,
             },
             completedAt: {
                 type: DataTypes.DATE,

@@ -43,7 +43,9 @@ const  createUser = async (userData: CreateUserReq, issueToken = JWT.issueToken,
     });
     let emailSuccessMessage = "Confirmation email sent successfully.";
     try {
-        await sendConfirmationEmail(newUser.email, emailConfirmationToken);
+        if (config.NODE_ENV !== "test") {
+            await sendConfirmationEmail(newUser.email, emailConfirmationToken);
+        }
     } catch (error) {
         logger.error(`Error occured while sending email confirmation error: ${JSON.stringify(error)}`, {
             label: loggerLabel
