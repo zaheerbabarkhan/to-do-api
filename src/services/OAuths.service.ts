@@ -4,7 +4,6 @@ import JWT from "../utils/jwt.util";
 import { AccountType } from "../types/user.types";
 import { User } from "../database/models";
 import status from "../constants/status";
-import { Op } from "sequelize";
 import logger from "../utils/logger";
 
 const loggerLabel = "OAuth Service";
@@ -38,11 +37,6 @@ const createUser = async (profile: GoogleProfile | GitHubProfile) =>{
         const [user, created] = await User.findOrCreate({
             where: {
                 email,
-                firstName,
-                lastName,
-                accountType: {
-                    [Op.in]: [AccountType.APP, AccountType.SOCIAL]
-                }
             },
             defaults: {
                 email,

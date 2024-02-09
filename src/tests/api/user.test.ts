@@ -34,9 +34,10 @@ describe("POST /user", () => {
         const userData = {
             firstName: "John",
             lastName: "Doe",
-            email: "john.doe@example.com",
+            email: "user2@example.com",
             password: "password123",
         };
+        await User.create(userData);
         try {
             await axios.post(`${app}/users`, userData);
         } catch (error) {

@@ -47,7 +47,7 @@ export const updateToDo = async (req: Request, res: Response, next: NextFunction
 export const getToDoById = async (req: Request, res: Response, next: NextFunction) => { 
     try {
         const id = Number(req.params.id);
-        const todo = await TodoService.getToDoById(id);
+        const todo = await TodoService.getToDoById(id, res.locals.user.id);
         res.status(httpStatus.OK).json(todo);
     } catch (error) {
         if(!(error instanceof HttpError)) {

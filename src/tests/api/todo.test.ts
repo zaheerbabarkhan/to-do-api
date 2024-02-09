@@ -10,35 +10,42 @@ const port = config.PORT || 3000;
 
 const app = `http://${host}:${port}`;
 
-let user: User;
-let token: string;
+// let user: User;
+// let token: string;
 
 describe("POST /todo", () => {
     it("should create a new todo", async () => {
+        
+
         const userData = {
             firstName: "testName",
             lastName: "testName",
-            email: "todocreate@example.com",
+            email: "user1@example.com",
             password: "password123", 
             statusId: status.ACTIVE 
         };
         
-        user = await User.create(userData);
-        token = JWT.issueToken({
+        const user = await User.create(userData);
+        const token = JWT.issueToken({
             userId: user.id
         });
 
 
-        const todoData = {
-            title: "First Todo",
-            descriptiong: "First Todo description",
-            dueDate: new Date(new Date().setDate(new Date().getDate() + 5)),
-        };
-        const response = await axios.post(`${app}/todos`, todoData, {
-            headers: {"Authorization": `Bearer ${token}`}
+        const formData = new FormData();
+        
+        formData.append("title", "First Todo");
+        formData.append("descriptiong", "First Todo description");
+        formData.append("dueDate", `${new Date(new Date().setDate(new Date().getDate() + 5))}`);
+        const response = await axios.post(`${app}/todos`, formData, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "multipart/form-data", // Important to set the content type
+                // ...formData.getHeaders(), // Get headers from FormData object
+            },
         });
         expect(response.status).toBe(httpStatus.CREATED);
         expect(response.data).toHaveProperty("id");
+       
     });
 });
 
@@ -47,6 +54,18 @@ describe("PUT /todo/:id", () => {
     const baseUrl =  app +"/todos";
 
     it("should update a to-do successfully", async () => {
+        const userData = {
+            firstName: "testName",
+            lastName: "testName",
+            email: "updateuser@example.com",
+            password: "password123", 
+            statusId: status.ACTIVE 
+        };
+        
+        const user = await User.create(userData);
+        const token = JWT.issueToken({
+            userId: user.id
+        });
         const newTodo = await ToDo.create({
             title: "First Todo",
             descriptiong: "First Todo description",
@@ -71,7 +90,19 @@ describe("PUT /todo/:id", () => {
     });
 
     it("should handle not found error", async () => {
-        const nonExistentTodoId = 999;
+        const userData = {
+            firstName: "testName",
+            lastName: "testName",
+            email: "updateuser3@example.com",
+            password: "password123", 
+            statusId: status.ACTIVE 
+        };
+        
+        const user = await User.create(userData);
+        const token = JWT.issueToken({
+            userId: user.id
+        });
+        const nonExistentTodoId = 0;
 
         try {
             await axios.put(`${baseUrl}/${nonExistentTodoId}`, {
@@ -90,7 +121,18 @@ describe("PUT /todo/:id", () => {
     });
 
     it("should mark a to-do as completed", async () => {
-
+        const userData = {
+            firstName: "testName",
+            lastName: "testName",
+            email: "updateuser4@example.com",
+            password: "password123", 
+            statusId: status.ACTIVE 
+        };
+        
+        const user = await User.create(userData);
+        const token = JWT.issueToken({
+            userId: user.id
+        });
         const newTodo = await ToDo.create({
             title: "First Todo",
             descriptiong: "First Todo description",
